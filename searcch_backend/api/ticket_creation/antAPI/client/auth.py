@@ -39,18 +39,16 @@ class AntAPIClientAuthenticator:
 
         try:
             req_time = datetime.utcnow()
-            req = requests.post(auth_url, data=dict(realm=self.realm,
+            res = requests.post(auth_url, data=dict(realm=self.realm,
                                                     email=self.email,
                                                     pword=self.password))
-            json_reply = req.json()
+            res.raise_for_status()
+            json_reply = res.json()
 
-        except requests.exceptions.JSONDecodeError as ex:
+        except Exception as ex: # pylint: disable=broad-except
             raise AntAPIClientAuthError(
-                f"Can't authenticate: status={req.status_code}, error parsing JSON response"
+                f"Can't authenticate: status={res.status_code}"
             ) from ex
-
-        except requests.exceptions.RequestException as ex:
-            raise AntAPIClientAuthError from ex
 
         msg = json_reply.get('message', 'None')
         if not req.ok:
