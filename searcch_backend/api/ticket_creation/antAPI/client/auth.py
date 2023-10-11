@@ -51,12 +51,9 @@ class AntAPIClientAuthenticator:
             ) from ex
 
         msg = json_reply.get('message', 'None')
-        if not req.ok:
-            raise AntAPIClientAuthError(
-                f"Can't authenticate: status={req.status_code}, error={msg}")
         if 'token' not in json_reply:
             raise AntAPIClientAuthError(
-                f"Can't authenticate: no token, status={req.status_code}, error={msg}")
+                f"Can't authenticate: no token, status={res.status_code}, error={msg}")
         #everything appears OK
         self._header = { "x-access-token" : json_reply['token'] }
         self._header_exp = req_time + self.token_maxlifetime
