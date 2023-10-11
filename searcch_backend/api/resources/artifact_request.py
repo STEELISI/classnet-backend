@@ -273,7 +273,7 @@ class ArtifactRequestAPI(Resource):
                     ssh_key=representative_researcher.get('publicKey', ''),
                 )
                
-                auth = AntAPIClientAuthenticator(**AUTH)
+                
                 error_response = jsonify({
                     "status": 500,
                     "status_code": 500,
@@ -282,9 +282,12 @@ class ArtifactRequestAPI(Resource):
                 error_response.headers.add('Access-Control-Allow-Origin', '*')
 
                 try:
-                        ticket_id = antapi_trac_ticket_new(auth, **ticket_fields)
+                    auth = AntAPIClientAuthenticator(**AUTH)
+                    ticket_id = antapi_trac_ticket_new(auth, **ticket_fields)
                 except Exception as err: # pylint: disable=bare-exception
                     LOG.error("Failed to create ticket:", str(err))
+                    db.session.query(ArtifactRequests).filter(artifact_request_id == ArtifactRequests.id).delete()
+                    db.session.commit()
                     return error_response
                 try:
                     db.session.query(ArtifactRequests) \
@@ -293,6 +296,8 @@ class ArtifactRequestAPI(Resource):
                     db.session.commit()
                 except Exception as err: # pylint: disable=bare-exception
                     LOG.error(f"Ticket was created (#{ticket_id}), but db update failed: {str(err)})")
+                    db.session.query(ArtifactRequests).filter(artifact_request_id == ArtifactRequests.id).delete()
+                    db.session.commit()
                     return error_response 
                 
             response = jsonify({
