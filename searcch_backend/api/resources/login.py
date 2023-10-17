@@ -152,7 +152,7 @@ class LoginAPI(Resource):
             abort(response.status_code, description="invalid SSO token")
         response_json = response.json()
         # According to ORCID documentation response_json["sub"] is unique for each user as is required for the login_id parameter
-        return ("cilogon_"+str(response_json["sub"]), response_json["email"], response_json.get("name", None))
+        return ("cilogon_"+str(response_json["sub"]), response_json.get("email", None), response_json.get("name", None))
 
     def _validate_token(self, strategy, sso_token):
         if strategy == "github":
