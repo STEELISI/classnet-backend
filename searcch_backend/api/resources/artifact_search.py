@@ -132,7 +132,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
     dua_query = db.session.query(DUA).subquery()
     query = query.join(DUA, Artifact.collection == DUA.collection)
-    
+    query = query.distinct()
     if (groupByCategory):
 
         categoryDict = {}
