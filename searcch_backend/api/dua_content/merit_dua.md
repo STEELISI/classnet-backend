@@ -70,12 +70,12 @@ IN WITNESS WHEREOF, the Parties hereto have caused this Agreement to be executed
 <table style="width: 100%; vertical-align: top; text-align: left; padding: 0px;">
   <tr>
     <td>
-        Organisation Name:<br>
-        <span id='rep_org'></span><br><br>
         Signed By:<br>
         <span id='rep_by' style='font-family: "Courier New", monospace;'></span><br><br> 
         Printed Name: <br>
         <span id='rep_name'></span><br><br>
+        Organisation Name:<br>
+        <span id='rep_org'></span><br><br>
         Title: <br>
         <span id='rep_title'></span><br><br>
         Date Signed: <br>
