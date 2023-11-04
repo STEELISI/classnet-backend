@@ -52,6 +52,14 @@ class ArtifactRequestStatusAPI(Resource):
                     auth = AntAPIClientAuthenticator(**AUTH)
                     ticket_status = antapi_trac_ticket_status(auth, ticket_id)
 
+                    if (ticket_status == "Cancelled"):
+                        # We delete a request in case the status is "Cancelled"
+                        # Note that it is sufficient to filter on artifact_group_id, and user_id, since we do not allow more than one request for an artifact by a user
+                        db.session.query(ArtifactRequests).filter(artifact_group_id == ArtifactRequests.artifact_group_id).filter(user_id == ArtifactRequests.requester_user_id).delete()
+                        db.session.commit()
+
+                        ticket_status = "unrequested" # treat Cancelled tickets as unrequested (Issue 59)
+
         response = jsonify({
             "ticket_status": ticket_status
         })
