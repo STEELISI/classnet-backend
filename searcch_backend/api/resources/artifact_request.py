@@ -25,7 +25,7 @@ from searcch_backend.models.schema import (
 from searcch_backend.api.common.stats import StatsResource
 from searcch_backend.api.ticket_creation.antAPI.client.auth import AntAPIClientAuthenticator
 from searcch_backend.api.ticket_creation.antAPI.client.trac import (
-   antapi_trac_ticket_new,
+   antapi_trac_ticket_new, antapi_trac_ticket_attach
 )
 from searcch_backend.api.common.auth import (
     verify_api_key,
@@ -294,6 +294,8 @@ class ArtifactRequestAPI(Resource):
                 try:
                     auth = AntAPIClientAuthenticator(**AUTH)
                     ticket_id = int(antapi_trac_ticket_new(auth, **ticket_fields))
+                    antapi_trac_ticket_attach(auth, ticket_id, [filename])
+
                 except Exception as err: # pylint: disable=broad-except
                     # undo the previous add
                     LOG.error(f"Failed to create ticket: {err}")
