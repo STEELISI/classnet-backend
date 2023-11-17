@@ -257,16 +257,18 @@ class ArtifactRequestAPI(Resource):
 
 
             # Create a ticket for the artifact request
-
+            
             # For testing purposes we do not create a request to the ANT backend if project name is TEST_PROJECT_NAME
             if project == TEST_PROJECT_NAME:
                 # We know that ticket_id cannot be -1 so we use that as the dummy ticket_id value
                 # in the case where we want to test the requested and released ticket flow
                 request_entry.ticket_id = -1
+                ticket_id = -1
             elif project == TEST_PROJECT_NAME+"-2":
                  # We know that ticket_id cannot be -2 so we use that as the dummy ticket_id value
                  # in the case where we want to test the requested but not released ticket flow
                 request_entry.ticket_id = -2
+                ticket_id = -2
             else:
                 # Regular user flow
                 ticket_description = "=== What Datasets\n{datasets}\n\n=== Why these Datasets\n{project_justification}\n\n=== What Project\n{project}\n\n=== Project Description\n{project_description}\n\n=== Researchers\n"
