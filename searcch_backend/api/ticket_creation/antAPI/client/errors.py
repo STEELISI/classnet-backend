@@ -1,6 +1,6 @@
 '''Exceptions raised by antAPI client code'''
 
-class AntAPIClientError(BaseException):
+class AntAPIClientError(Exception):
     '''Base class for all antAPI client errors'''
 
 class AntAPIClientAuthError(AntAPIClientError):
