@@ -311,7 +311,7 @@ class ArtifactRequestAPI(Resource):
                     .filter(artifact_request_id == ArtifactRequests.id) \
                     .update({'ticket_id': ticket_id})
                 db.session.commit()
-            except Exception as err: # pylint: disable=broad-except
+            except Exception as err: # pylint: disable=broad-except (we expect to enter this except block if ticket_id was not assigned a value - in which case the request must be deleted since no ticket was assigned for it)
                 LOG.error(f"Ticket was created (#{ticket_id}), but db update failed: {str(err)})")
                 try:
                     db.session.query(ArtifactRequests).filter(artifact_request_id == ArtifactRequests.id).delete()

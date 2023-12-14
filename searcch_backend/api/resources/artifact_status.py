@@ -50,10 +50,14 @@ class ArtifactRequestStatusAPI(Resource):
                     ticket_status = "new"
                 else : # regular user flow
                     auth = AntAPIClientAuthenticator(**AUTH)
-                    ticket_status = antapi_trac_ticket_status(auth, ticket_id)
+                    try:
+                        ticket_status = antapi_trac_ticket_status(auth, ticket_id)
+                    except Exception as err:
+                        LOG.error(f"Ticket status fetch for user ID {user_id} unsuccessful: {str(err)}")
+                        ticket_status = None
 
-                    if (ticket_status == "Cancelled"):
-                        # We delete a request in case the status is "Cancelled"
+                    if (ticket_status is None or ticket_status == "Cancelled"):
+                        # We delete a request in case the status is "Cancelled" or if the ticket does not exist on the ANT srbackend
                         # Note that it is sufficient to filter on artifact_group_id, and user_id, since we do not allow more than one request for an artifact by a user
                         db.session.query(ArtifactRequests).filter(artifact_group_id == ArtifactRequests.artifact_group_id).filter(user_id == ArtifactRequests.requester_user_id).delete()
                         db.session.commit()
