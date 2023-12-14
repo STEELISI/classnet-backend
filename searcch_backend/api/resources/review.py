@@ -52,9 +52,6 @@ class ReviewAPI(Resource):
         args = self.reqparse.parse_args()
         review = args['review']
 
-        if len(review) < 1:
-            abort(400, description='review cannot be empty')
-
         # check for valid artifact id
         artifact_group = db.session.query(ArtifactGroup).filter(
             ArtifactGroup.id == artifact_group_id).first()
