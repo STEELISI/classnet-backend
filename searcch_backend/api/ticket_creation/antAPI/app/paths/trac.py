@@ -30,7 +30,7 @@ LOG.setLevel(logging.DEBUG)
 
 PROVIDER_EMAIL = {
     'USC':     'usc-lander-host@isi.edu',
-    'MERIT':   'mgkallit@merit.edu',
+    'MERIT':   'comunda-merit@ant.isi.edu',
     'MEMPHIS': 'Christos.Papadopoulos@memphis.edu',
 }
 REQUIRED_PARAMS = {
@@ -223,4 +223,11 @@ def ticket_status(current_user, ticket_id):
             'message':
                 f'ERROR cannot obtain ticket status: exception -  {str(ex)}'
         }), 401
-    return jsonify({'message': 'OK', 'status': ticket['status']})
+
+    # simplify ticket status: either Released or Cancelled, or InProgress
+    status_map = {
+        'Released': 'Released',
+        'Abandoned': 'Cancelled',
+    }
+    status = status_map.get(ticket['status'], 'InProgress')
+    return jsonify({'message': 'OK', 'status': status})
