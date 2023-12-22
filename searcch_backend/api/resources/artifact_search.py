@@ -66,7 +66,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by(desc(search_query.c.rank))
+                        ).order_by(Artifact.title)
 
     if author_keywords or organization or category:
         rank_list = []
@@ -132,7 +132,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
     dua_query = db.session.query(DUA).subquery()
     query = query.join(DUA, Artifact.collection == DUA.collection)
-    query = query.order_by(Artifact.title)
+
     query = query.distinct()
     if (groupByCategory):
 
