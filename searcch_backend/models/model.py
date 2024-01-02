@@ -318,6 +318,8 @@ class Person(db.Model):
     name = db.Column(db.String(1024), nullable=True)
     email = db.Column(db.String(256), nullable=True)
     emailAuthenticated = db.Column(db.Boolean, nullable=True, default=False)
+    countryCode = db.Column(db.String(16), nullable = True)
+    mobileNumber = db.Column(db.String(16), nullable = True)
 
     login_id = db.Column(db.String(256), nullable=True)
     profile_photo = db.Column(BYTEA, nullable=True)

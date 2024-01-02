@@ -136,6 +136,11 @@ class UserProfileAPI(Resource):
                                    type=str, required=False)
         self.reqparse.add_argument(name='publicKey', 
                                    type=str, required=False)
+        self.reqparse.add_argument(name='countryCode', 
+                                   type=int, required=False)
+        self.reqparse.add_argument(name='mobileNumber', 
+                                   type=int, required=False)
+        
 
         super(UserProfileAPI, self).__init__()
 
@@ -170,7 +175,9 @@ class UserProfileAPI(Resource):
                         "profile_photo": base64.b64encode(user.person.profile_photo).decode("utf-8") if user.person.profile_photo is not None else "",
                         "position":user.person.position,
                         "publicKey":user.person.public_key,
-                        "emailAuthenticated":user.person.emailAuthenticated
+                        "emailAuthenticated":user.person.emailAuthenticated,
+                        "countryCode":user.person.countryCode,
+                        "mobileNumber":user.person.mobileNumber
                     },
                     "affiliations": UserAffiliationSchema(many=True).dump(affiliations),
                     
@@ -206,6 +213,8 @@ class UserProfileAPI(Resource):
         userOTP = args['userOTP']
         position = args['position']
         public_key = args['publicKey']
+        countryCode = args['countryCode']
+        mobileNumber = args['mobileNumber']
         user = login_session.user
         person = db.session.query(Person).filter(Person.id == user.person_id).first()
 
@@ -300,6 +309,10 @@ class UserProfileAPI(Resource):
             person.position = position
         if public_key is not None:
             person.public_key = public_key
+        if countryCode is not None:
+            person.countryCode = countryCode
+        if mobileNumber is not None:
+            person.mobileNumber = mobileNumber
 
         db.session.commit()
 
