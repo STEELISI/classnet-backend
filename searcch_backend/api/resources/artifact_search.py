@@ -53,7 +53,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                         ).join(sqratings, ArtifactGroup.id == sqratings.c.artifact_group_id, isouter=True
                         ).join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by(sqratings.c.avg_rating.desc().nullslast(),sqreviews.c.num_reviews.desc())
+                        ).order_by((func.right(Artifact.title, 8)).desc())
     else:
         search_query = db.session.query(ArtifactSearchMaterializedView.artifact_id, 
                                         func.ts_rank_cd(ArtifactSearchMaterializedView.doc_vector, func.websearch_to_tsquery("english", keywords)).label("rank")
@@ -66,7 +66,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by(Artifact.title)
+                        ).order_by((func.right(Artifact.title, 8)).desc())
 
     if author_keywords or organization or category:
         rank_list = []
