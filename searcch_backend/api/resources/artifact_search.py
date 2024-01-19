@@ -33,7 +33,6 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     # create base query object
     if not keywords:
         query = db.session.query(Artifact,
-                                    sql.expression.bindparam("zero", 0).label("rank"),
                                     'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
                                     ).order_by(
                                     db.case([
@@ -55,18 +54,29 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
                         ).order_by((func.right(Artifact.title, 8)).desc())
     else:
+        keyword_list = keywords.split()
+        # Create a list of conditions for each keyword for partial matching on title
+        title_conditions = [Artifact.title.ilike(f"%{keyword}%") for keyword in keyword_list]
+        LOG.error(f"title conditions {title_conditions}, keywordlist {keyword_list}")
+        # Combine title conditions using OR operator
+        combined_title_condition = or_(*title_conditions)
         search_query = db.session.query(ArtifactSearchMaterializedView.artifact_id, 
                                         func.ts_rank_cd(ArtifactSearchMaterializedView.doc_vector, func.websearch_to_tsquery("english", keywords)).label("rank")
                                     ).filter(ArtifactSearchMaterializedView.doc_vector.op('@@')(func.websearch_to_tsquery("english", keywords))
                                     ).subquery()
         query = db.session.query(Artifact, 
-                                    search_query.c.rank, 'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
-                                    ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
-                                    ).join(search_query, Artifact.id == search_query.c.artifact_id, isouter=False)
+                                    'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
+                                ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
+                                )
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by((func.right(Artifact.title, 8)).desc())
+                        ).order_by(desc(combined_title_condition), (func.right(Artifact.title, 8)).desc())
+        for row in query.all():
+
+            artifact, num_ratings, avg_rating, num_reviews, dua_url = row
+            LOG.error(f"artifact title {artifact.title}")
+
 
     if author_keywords or organization or category:
         rank_list = []
@@ -139,7 +149,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         categoryDict = {}
         for row in query.all():
 
-            artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+            artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
             if artifact.category not in categoryDict:
                 categoryDict[artifact.category] = dict(count=0, artifacts=[])
             
@@ -153,7 +163,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
     artifacts = []
     for row in result:
-        artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+        artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
 
         abstract = {
             "id": artifact.id,
