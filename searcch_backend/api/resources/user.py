@@ -137,9 +137,9 @@ class UserProfileAPI(Resource):
         self.reqparse.add_argument(name='publicKey', 
                                    type=str, required=False)
         self.reqparse.add_argument(name='countryCode', 
-                                   type=int, required=False)
+                                   type=str, required=False)
         self.reqparse.add_argument(name='mobileNumber', 
-                                   type=int, required=False)
+                                   type=str, required=False)
         
 
         super(UserProfileAPI, self).__init__()
