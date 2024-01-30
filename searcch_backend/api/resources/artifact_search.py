@@ -18,6 +18,31 @@ def generate_artifact_uri(artifact_group_id, artifact_id=None):
     return url_for('api.artifact', artifact_group_id=artifact_group_id,
                    artifact_id=artifact_id)
 
+# Method written with the help of ChatGPT
+def sort_artifacts_by_criteria(artifacts, keywords=None):
+    def custom_sort(artifact):
+        if keywords:
+            # Count the number of keyword matches in the title field
+            keyword_count = sum(1 for keyword in keywords if keyword in artifact['title'])
+        else:
+            keyword_count = 0
+        
+        # Sort by descending order of the last 8 characters
+        sorting_key = (keyword_count, artifact['title'][-8:], artifact['title'])          
+        return sorting_key
+    
+    # Sort the artifacts using the custom sorting function
+    sorted_artifacts = sorted(artifacts, key=custom_sort, reverse=True)
+    
+    return sorted_artifacts
+
+# Method written with the help of ChatGPT
+def paginate(sorted_artifacts, page_num, items_per_page):
+    start_index = (page_num - 1) * items_per_page
+    end_index = start_index + items_per_page
+    return sorted_artifacts[start_index:end_index]
+
+
 def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, groupByCategory):
     """ search for artifacts based on keywords, with optional filters by owner and affiliation """
     sqratings = db.session.query(
@@ -32,8 +57,8 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
     # create base query object
     if not keywords:
+        logging.disable(logging.INFO) # disable to prevent excessive logging of all artifacts when loading the search page for the first time
         query = db.session.query(Artifact,
-                                    sql.expression.bindparam("zero", 0).label("rank"),
                                     'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
                                     ).order_by(
                                     db.case([
@@ -55,18 +80,26 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
                         ).order_by((func.right(Artifact.title, 8)).desc())
     else:
-        search_query = db.session.query(ArtifactSearchMaterializedView.artifact_id, 
-                                        func.ts_rank_cd(ArtifactSearchMaterializedView.doc_vector, func.websearch_to_tsquery("english", keywords)).label("rank")
-                                    ).filter(ArtifactSearchMaterializedView.doc_vector.op('@@')(func.websearch_to_tsquery("english", keywords))
-                                    ).subquery()
+        # search_query = db.session.query(ArtifactSearchMaterializedView.artifact_id, 
+        #                                 func.ts_rank_cd(ArtifactSearchMaterializedView.doc_vector, func.websearch_to_tsquery("english", keywords)).label("rank")
+        #                             ).filter(ArtifactSearchMaterializedView.doc_vector.op('@@')(func.websearch_to_tsquery("english", keywords))
+        #                             ).subquery() 
+        # Split the keywords into a list
+        keyword_list = keywords.split()
+
+        # Create a list of conditions for each keyword for partial matching on title
+        title_conditions = [Artifact.title.ilike(f"%{keyword}%") for keyword in keyword_list]
+
+        # Combine title conditions using OR operator
+        combined_title_condition = or_(*title_conditions)
         query = db.session.query(Artifact, 
-                                    search_query.c.rank, 'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
+                                    'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
                                     ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
-                                    ).join(search_query, Artifact.id == search_query.c.artifact_id, isouter=False)
+                                    )
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by((func.right(Artifact.title, 8)).desc())
+                        ).filter(combined_title_condition)
 
     if author_keywords or organization or category:
         rank_list = []
@@ -138,8 +171,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
         categoryDict = {}
         for row in query.all():
-
-            artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+            artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
             if artifact.category not in categoryDict:
                 categoryDict[artifact.category] = dict(count=0, artifacts=[])
             
@@ -147,13 +179,11 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             categoryDict[artifact.category]["artifacts"].append(artifact.title)
            
         return dict(categoryDict=categoryDict)
-    
-    pagination = query.paginate(page=page_num, error_out=False, max_per_page=items_per_page)
-    result = pagination.items
+    result = query.all()
 
     artifacts = []
     for row in result:
-        artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+        artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
 
         abstract = {
             "id": artifact.id,
@@ -178,10 +208,20 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
         artifacts.append(abstract)
 
+    sorted_artifacts = []
+    if keywords:
+        sorted_artifacts = sort_artifacts_by_criteria(artifacts, keywords.split())
+    else:
+        sorted_artifacts = sort_artifacts_by_criteria(artifacts)
+
+    artifact_page = paginate(sorted_artifacts, page_num, items_per_page)
+    
+    logging.basicConfig(level = logging.INFO)
+
     return dict(
-        page=pagination.page,total=pagination.total,
-        pages=int(math.ceil(pagination.total / items_per_page)),
-        artifacts=artifacts)
+        page=page_num,total=len(sorted_artifacts),
+        pages=int(math.ceil(len(sorted_artifacts) / items_per_page)),
+        artifacts=artifact_page)
 
 class ArtifactSearchIndexAPI(Resource):
     def __init__(self):
