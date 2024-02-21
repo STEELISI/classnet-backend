@@ -20,7 +20,6 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variable for GitHub token
-ENV GH_TOKEN=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
 
 # Download AntAPI wheel using GitHub CLI
 ENV ANTAPI_VERSION=1.0.1
