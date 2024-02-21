@@ -7,9 +7,27 @@ FROM pypy:3.7-7.3.3-slim-buster
 
 RUN \
   apt update -y \
-  && apt install -y build-essential libpq-dev \
+  && apt install -y build-essential libpq-dev curl gpg \
   && rm -rf /var/lib/apt/lists/* \
   && pip install --upgrade pip setuptools wheel
+
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages buster main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt update \
+    && apt install -y gh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variable for GitHub token
+ENV GH_TOKEN=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
+
+# Download AntAPI wheel using GitHub CLI
+ENV ANTAPI_VERSION=1.0.1
+RUN gh run download -R STEELISI/ANTapi -n antAPI-$ANTAPI_VERSION-py3-none-any.whl
+
+# Install AntAPI wheel
+RUN pip install antAPI-$ANTAPI_VERSION-py3-none-any.whl
 
 WORKDIR /app/
 
