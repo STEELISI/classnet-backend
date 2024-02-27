@@ -57,7 +57,7 @@ class DUAResource(Resource):
         dataset_subcategory = db.session.query(Artifact.datasetSubCategory).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
         dataset_subcategory = "" if dataset_subcategory is None else dataset_subcategory  
         
-        dua_name = db.session.query(DUA.dua_url).join(Artifact, Artifact.provider == DUA.provider).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+        dua_name = db.session.query(DUA.dua_url).join(Artifact, and_(Artifact.provider == DUA.provider, Artifact.collection == DUA.collection)).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
         dua_file = open(f'searcch_backend/api/dua_content/{dua_name}', mode='r')
         dua_content = dua_file.read()
         dua_file.close()
