@@ -199,7 +199,7 @@ class ArtifactRequestAPI(Resource):
                 irb_file = None
             else:
                 irb_file = irb_file.read()
-            frgpData = request.files.get('frgpData')
+            frgpData = request.form.get('frgpData')
             if not frgpData:
                 frgpData = None
 
