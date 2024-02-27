@@ -112,6 +112,7 @@ class DUAResource(Resource):
                 dua_a.append(to_replicate)
             soup.find(id="project_name").string = project
             soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_name_sig').string = representative_researcher['name']
             soup.find(id='rep_title').string = representative_researcher['title']
             soup.find(id='rep_email').string = representative_researcher['email']
             soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")

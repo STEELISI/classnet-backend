@@ -13,6 +13,7 @@ WHEREAS, Dataset contains anonymized and proprietary network traffic headers and
 4. Researchers will download the Dataset from the personalized link they receive in email, after signing this document 
 5. Researchers will keep the Dataset on a secure machine or machines 
 6. Researchers will ensure that all copies of the Dataset are erased upon the end of the purpose.
+<br>
 
 ### Section II
 
@@ -37,8 +38,6 @@ Please list here the names, affiliations and e-mail addresses of all researchers
         </td>
     </tr>
 </table>
-<br><br>
-<hr>
 <br>
 
 The undersigned Researcher confirms that they have understood the obligations and acceptable use conditions outlined in this Agreement will ensure that their entire team (listed in Section II) abides by them. 
@@ -46,4 +45,8 @@ The undersigned Researcher confirms that they have understood the obligations an
  
 Researcher name: <span id='rep_name'></span><br>
 Researcher affiliation and title: <span id='rep_email'></span>, <span id="rep_title"></span><br>
-Signature (retype your name) and date: <span id='rep_name'></span>, <span id='rep_date'></span><br>
+Signature (retype your name) and date: <span id='rep_name_sig'></span>, <span id='rep_date'></span><br>
+
+<br>
+By typing my name above, I understand and agree that this form of electronic signature has the same legal force and effect as a manual signature
+
