@@ -98,6 +98,24 @@ class DUAResource(Resource):
             soup.find(id='rep_by').string = representative_researcher['name']
             soup.find(id='rep_title').string = representative_researcher['title']
             soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+        
+        elif dua_name == 'frgp_dua_dload.md':
+            dua_a = soup.find(id='dua_a_to_replicate').parent
+            dua_a_to_replicate_og = dua_a.find(id='dua_a_to_replicate')
+            dua_a_to_replicate = copy.deepcopy(dua_a_to_replicate_og)
+            dua_a_to_replicate_og.clear()
+            for researcher in researchers:
+                to_replicate = copy.deepcopy(dua_a_to_replicate)
+                to_replicate.find(id='dua_a_name').string = researcher['name']
+                to_replicate.find(id='dua_a_email').string = researcher['email']
+                to_replicate.find(id='dua_a_affiliation').string = researcher['organization']
+                dua_a.append(to_replicate)
+            soup.find(id="project_name").string = project
+            soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_title').string = representative_researcher['title']
+            soup.find(id='rep_email').string = representative_researcher['email']
+            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+
 
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
