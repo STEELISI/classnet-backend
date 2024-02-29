@@ -199,6 +199,9 @@ class ArtifactRequestAPI(Resource):
                 irb_file = None
             else:
                 irb_file = irb_file.read()
+            frgpData = request.form.get('frgpData')
+            if not frgpData:
+                frgpData = None
 
 
             agreement_file_folder = './agreement_file_folder'
@@ -226,7 +229,8 @@ class ArtifactRequestAPI(Resource):
                 researchers=researchers,
                 representative_researcher_email=representative_researcher_email,
                 agreement_file=agreement_file,
-                irb=irb_file
+                irb=irb_file,
+                frgp_data=frgpData
             )
             # create a record now, so we can get it's id and submit it in a ticket
             # if ticket creation fails, we'll have to undo this add
