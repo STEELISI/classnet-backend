@@ -8,3 +8,4 @@ models/backup/
 *.pyc
 __pycache__/
 searcch_backend/api/ticket_creation/antapi_client_conf.py
+Dockerfile

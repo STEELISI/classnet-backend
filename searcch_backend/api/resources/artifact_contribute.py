@@ -40,11 +40,11 @@ class ArtifactContribute(Resource):
                                    required=False,
                                    help='missing datasetClass in query string')
         self.reqparse.add_argument(name='commercialAllowed',
-                                   type=bool,
+                                   type=str,
                                    required=False,
                                    help='missing commercialAllowed in query string')
         self.reqparse.add_argument(name='productReviewRequired',
-                                   type=bool,
+                                   type=str,
                                    required=False,
                                    help='missing productReviewRequired in query string')
         self.reqparse.add_argument(name='availabilityStartDateTime',
@@ -56,7 +56,7 @@ class ArtifactContribute(Resource):
                                    required=True,
                                    help='missing availabilityEndDateTime in query string')
         self.reqparse.add_argument(name='ongoingMeasurement',
-                                   type=bool,
+                                   type=str,
                                    required=False,
                                    help='missing ongoingMeasurement in query string')
         self.reqparse.add_argument(name='collectionStartDateTime',
@@ -72,17 +72,21 @@ class ArtifactContribute(Resource):
                                    required=True,
                                    help='missing byteSize in query string')
         self.reqparse.add_argument(name='archivingAllowed',
-                                   type=bool,
+                                   type=str,
                                    required=False,
                                    help='missing archivingAllowed in query string')
         self.reqparse.add_argument(name='keywordList',
                                    type=str,
                                    required=True,
                                    help='missing keywordList in query string')
+        self.reqparse.add_argument(name='formatList',
+                                   type=str,
+                                   required=True,
+                                   help='missing formatList in query string')
         self.reqparse.add_argument(name='anonymizationList',
                                    type=str,
                                    required=True,
-                                   help='missing keywordList in query string')
+                                   help='missing anonymizationList in query string')
         self.reqparse.add_argument(name='accessList',
                                    type=str,
                                    required=False,
@@ -92,11 +96,11 @@ class ArtifactContribute(Resource):
                                    required=True,
                                    help='missing providerName in query string')
         self.reqparse.add_argument(name='uncompressedSize',
-                                   type=int,
+                                   type=str,
                                    required=False,
                                    help='missing uncompressedSize in query string')
         self.reqparse.add_argument(name='expirationDays',
-                                   type=int,
+                                   type=str,
                                    required=False,
                                    default=14,
                                    help='missing expirationDays in query string')
@@ -109,7 +113,7 @@ class ArtifactContribute(Resource):
                                    required=True,
                                    help='missing useAgreement in query string')
         self.reqparse.add_argument(name='irbRequired',
-                                   type=bool,
+                                   type=str,
                                    required=False,
                                    help='missing irbRequired in query string')
         self.reqparse.add_argument(name='retrievalInstructions',
@@ -121,67 +125,49 @@ class ArtifactContribute(Resource):
 
     def post(self):
         # args = self.reqparse.parse_args()
-        if has_api_key(request):
-            verify_api_key(request)
+        verify_api_key(request)
+        login_session = verify_token(request)
         args = self.reqparse.parse_args()
 
-        datasetName = args["datasetName"]
-        shortDesc = args["shortDesc"]
-        longDesc = args["longDesc"]
-        datasetClass = args["datasetClass"]
-        commercialAllowed = args["commercialAllowed"]
-        productReviewRequired = args["productReviewRequired"]
-        availabilityStartDateTime = args["availabilityStartDateTime"]
-        availabilityEndDateTime = args["availabilityEndDateTime"]
-        ongoingMeasurement = args["ongoingMeasurement"]
-        collectionStartDateTime = args["collectionStartDateTime"]
-        collectionEndDateTime = args["collectionEndDateTime"]
-        byteSize = args["byteSize"]
-        archivingAllowed = args["archivingAllowed"]
-        keywordList = args["keywordList"]
-        anonymizationList = args["anonymizationList"]
-        accessList = args["accessList"]
-        providerName = args["providerName"]
-        uncompressedSize = args["uncompressedSize"]
-        expirationDays = args["expirationDays"]
-        groupingId = args["groupingId"]
-        useAgreement = args["useAgreement"]
-        irbRequired = args["irbRequired"]
-        retrievalInstructions = args["retrievalInstructions"]
         LOG.error("HI from Contribute!")
-        LOG.error("datasetName")
-
-        metadata = {
-                "datasetName": "xyz-Paul-test",
-                "shortDesc": "short description",
-                "longDesc": "long dataset description - this dataset contains network traffic collected...",
-                "availabilityStartDateTime": datetime(2024, 1, 1, 0, 0, 0),
-                "availabilityEndDateTime": datetime(2024, 1, 1, 0, 0, 1), 
-                "collectionStartDateTime": datetime(2024, 1, 1, 0, 0, 0),
-                "collectionEndDateTime": datetime(2024, 1, 1, 0, 0, 0),
-                "byteSize": 100,
-                "keywordList": "blah,blah blah",
-                "formatList": "text",
-                "anonymizationList": "cryptopan-full",
-                "providerName": "COMUNDA:Paul",
-                "useAgreement": "none"
-         }
+        LOG.error(args)
+        args["availabilityStartDateTime"] =datetime.strptime(args["availabilityStartDateTime"], "%Y-%m-%d")
+        args["availabilityEndDateTime"] = datetime.strptime(args["availabilityEndDateTime"], "%Y-%m-%d")
+        args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
+        args["collectionEndDateTime"] =datetime.strptime(args["collectionEndDateTime"], "%Y-%m-%d")
+        args["providerName"] = "COMUNDA:" + args["providerName"]
         try:
-            auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
-            response = antapi_datasets_meta_new(auth, **metadata)
-            LOG.error("antapi_datasets_meta_new response")
+            user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
+            args["providerEmail"] = user_email
 
-            LOG.error(response)
+            filtered_args = {k: v for k, v in args.items() if v != ''}
+            LOG.error(f'Args submitted to antapi_datasets_meta_new: {filtered_args}')
 
+            try:
+                auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
+                response = antapi_datasets_meta_new(auth, **filtered_args)
+                response = jsonify({
+                    "message": "Dataset Contribution Successful!",
+                    "success":"true"
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.status_code = 200
+
+            except Exception as err: # pylint: disable=broad-except
+                LOG.error(f"Failed to contribute dataset: {err}")
+                response = jsonify({
+                    "message": "Server error. Please try again later.",
+                    "success":"false"
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.status_code = 201
         except Exception as err: # pylint: disable=broad-except
-            # undo the previous add
-            LOG.error(f"Failed to contribute dataset: {err}")
-            
-    
+                LOG.error(f"Could not find user email.: {err}")
+                response = jsonify({
+                    "message": "Server error. Please try again later."
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.status_code = 201
         
-        response = jsonify({
-            "message": "Contribute endpoint Successful!!!!!"
-        })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.status_code = 200
+        
         return response
