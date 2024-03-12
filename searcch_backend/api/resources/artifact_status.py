@@ -8,8 +8,8 @@ from flask import jsonify, request
 from flask_restful import reqparse, Resource
 from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 import logging
-from searcch_backend.api.ticket_creation.antAPI.client.auth import AntAPIClientAuthenticator
-from searcch_backend.api.ticket_creation.antAPI.client.trac import (
+from antAPI.client.auth import AntAPIClientAuthenticator
+from antAPI.client.trac import (
        antapi_trac_ticket_status,
 )
 from searcch_backend.api.ticket_creation.antapi_client_conf import AUTH

@@ -8,12 +8,9 @@ from flask import jsonify, request
 from flask_restful import reqparse, Resource
 from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 import logging
-from searcch_backend.api.ticket_creation.antAPI.client.auth import AntAPIClientAuthenticator
+from antAPI.client.auth import AntAPIClientAuthenticator
 
 from searcch_backend.api.ticket_creation.antapi_client_conf import AUTH_DATASETS
-# from searcch_backend.api.ticket_creation.antAPI.client.datasets import (
-#    antapi_datasets_meta_new
-# )
 from datetime import datetime
 from antAPI.client.datasets import antapi_datasets_meta_new
 
