@@ -57,7 +57,7 @@ class DUAResource(Resource):
         dataset_subcategory = db.session.query(Artifact.datasetSubCategory).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
         dataset_subcategory = "" if dataset_subcategory is None else dataset_subcategory  
         
-        dua_name = db.session.query(DUA.dua_url).join(Artifact, Artifact.provider == DUA.provider).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+        dua_name = db.session.query(DUA.dua_url).join(Artifact, and_(Artifact.provider == DUA.provider, Artifact.collection == DUA.collection)).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
         dua_file = open(f'searcch_backend/api/dua_content/{dua_name}', mode='r')
         dua_content = dua_file.read()
         dua_file.close()
@@ -98,6 +98,25 @@ class DUAResource(Resource):
             soup.find(id='rep_by').string = representative_researcher['name']
             soup.find(id='rep_title').string = representative_researcher['title']
             soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+        
+        elif dua_name == 'frgp_dua_dload.md':
+            dua_a = soup.find(id='dua_a_to_replicate').parent
+            dua_a_to_replicate_og = dua_a.find(id='dua_a_to_replicate')
+            dua_a_to_replicate = copy.deepcopy(dua_a_to_replicate_og)
+            dua_a_to_replicate_og.clear()
+            for researcher in researchers:
+                to_replicate = copy.deepcopy(dua_a_to_replicate)
+                to_replicate.find(id='dua_a_name').string = researcher['name']
+                to_replicate.find(id='dua_a_email').string = researcher['email']
+                to_replicate.find(id='dua_a_affiliation').string = researcher['organization']
+                dua_a.append(to_replicate)
+            soup.find(id="project_name").string = project
+            soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_name_sig').string = representative_researcher['name']
+            soup.find(id='rep_title').string = representative_researcher['title']
+            soup.find(id='rep_email').string = representative_researcher['email']
+            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+
 
         response = jsonify({"dua": str(soup)})
         response.status_code = 200

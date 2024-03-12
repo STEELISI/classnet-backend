@@ -926,6 +926,7 @@ class ArtifactRequests(db.Model):
     agreement_file = db.Column(db.LargeBinary, nullable=False)
     irb = db.Column(db.LargeBinary, nullable=True)
     ticket_id = db.Column(db.Integer, nullable=True)
+    frgp_data = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return "<ArtifactRequests(id=%r, artifact_group_id=%r, requester_user_id=%r, research_desc=%r, research_that_interacts=%r, agreement_file=%r)>" % (self.id, self.artifact_group_id, self.requester_user_id, self.research_desc, self.research_that_interacts, self.agreement_file)
