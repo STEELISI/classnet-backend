@@ -39,7 +39,7 @@ class ArtifactRequestListAPI(Resource):
             if can_admin == True and login_session.is_admin == True:
                 list_of_requests_tuples = db.session.query(Artifact.id,Artifact.title).all()
             else:
-                list_of_requests_tuples = db.session.query(ArtifactRequests.artifact_group_id,Artifact.title).join(ArtifactRequests, Artifact.id == ArtifactRequests.artifact_group_id).filter(user_id == ArtifactRequests.requester_user_id).all()
+                list_of_requests_tuples = db.session.query(ArtifactRequests.artifact_group_id,Artifact.title).join(ArtifactRequests, Artifact.artifact_group_id == ArtifactRequests.artifact_group_id).filter(user_id == ArtifactRequests.requester_user_id).all()
 
         requestedArtifactIDs = {}
         for requestTuple in list_of_requests_tuples:
