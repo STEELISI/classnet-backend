@@ -40,6 +40,33 @@ Please list here the names, affiliations and e-mail addresses of all researchers
 </table>
 <br>
 
+<p>Supervisor Name : <span id='supervisor_name'></span> </p>
+<br>
+<p>Supervisor Title : <span id='supervisor_title'></span> </p>
+<br>
+<p>Supervisor Institute Email : <span id='supervisor_email'></span> </p>
+<br>
+<p>Nationality of researcher (for UCAR export restrictions): <span id='researcher_nationality'></span> </p>
+<br>
+<p>What are you researching?<br><span id='research_justification'></span> </p>
+<br>
+<p>What is the estimated time period of the project?<br><span id='project_duration'></span> </p>
+<br>
+<p>Where will the data be stored, is it at your institution, a cloud provider, or other? Please specify.<br><span id='data_storage'></span></p>
+<br>
+<p>How many people will have direct access to the data?<br><span id='number_of_researchers'></span> </p>
+<br>
+<p>Is the data to be used as part of a NSF (or other) grant? Please list.<br><span id='grants'></span> </p>
+<br>
+<p>What do you propose to do with the data?<br><span id='data_usage'></span> </p>
+<br>
+<p>How will the research results from the data be shared?<br><span id='data_sharing'></span> </p>
+<br>
+<p>Who is the audience for the research?<br><span id='target_audience'></span> </p>
+<br>
+<p>How will the data be disposed of once finished?<br><span id='data_disposal'></span> </p>
+<br>
+
 The undersigned Researcher confirms that they have understood the obligations and acceptable use conditions outlined in this Agreement will ensure that their entire team (listed in Section II) abides by them. 
 <br>
  

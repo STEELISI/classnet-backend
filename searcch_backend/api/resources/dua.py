@@ -39,6 +39,10 @@ class DUAResource(Resource):
                                    type=str,
                                    required=True,
                                    help='missing representative_researcher') 
+        self.reqparse.add_argument(name='frgpData',
+                                   type=str,
+                                   required=False,
+                                   help='missing FRGP Data') 
                          
         super(DUAResource, self).__init__()
 
@@ -51,6 +55,11 @@ class DUAResource(Resource):
         representative_researcher = args['representative_researcher']
         researchers = json.loads(researchers)
         representative_researcher = json.loads(representative_researcher)
+        
+        if  args['frgpData'] is not None:
+            frgpData = json.loads(args['frgpData'])
+        else:
+            frgpData = {}
         
         dataset_category = db.session.query(Artifact.category).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
         dataset_category = "" if dataset_category is None else dataset_category  
@@ -116,7 +125,19 @@ class DUAResource(Resource):
             soup.find(id='rep_title').string = representative_researcher['title']
             soup.find(id='rep_email').string = representative_researcher['email']
             soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
-
+            soup.find(id="supervisor_name").string = frgpData['supervisor_researcher']['name']
+            soup.find(id="supervisor_title").string = frgpData['supervisor_researcher']['title']
+            soup.find(id="supervisor_email").string = frgpData['supervisor_researcher']['email']
+            soup.find(id="researcher_nationality").string = frgpData['nationality']
+            soup.find(id="project_duration").string = frgpData['timeperiod']
+            soup.find(id="data_storage").string = frgpData['storageLocation']
+            soup.find(id="number_of_researchers").string = frgpData['numberOfResearchers']
+            soup.find(id="grants").string = frgpData['grants']
+            soup.find(id="data_usage").string = frgpData['dataUsage']
+            soup.find(id="data_sharing").string = frgpData['resultSharing']
+            soup.find(id="target_audience").string = frgpData['targetAudience']
+            soup.find(id="data_disposal").string = frgpData['dataDisposal']
+            soup.find(id="research_justification").string = project_description
 
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
