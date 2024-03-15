@@ -935,7 +935,7 @@ class Labels(db.Model):
     __tablename__ = "labels"
     
     label_id = db.Column(db.String(128),primary_key=True, nullable=False)
-    artifact_id = db.Column(db.Integer, db.ForeignKey("artifacts.id", ondelete='CASCADE'))
+    artifact_id = db.Column(db.Integer, db.ForeignKey("artifacts.artifact_group_id", ondelete='CASCADE'), nullable=False)
     label_url = db.Column(db.String(2048), nullable=False)
 
     def __repr__(self):
