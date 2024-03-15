@@ -721,6 +721,10 @@ class Artifact(db.Model):
     __clone_skip_fields__ = (
         'importer_id', 'exporter_id', 'parent_id', 'owner_id', 'ctime', 'mtime',
     )
+    __table_args__ = (
+        db.UniqueConstraint("artifact_group_id"),
+    )
+
 
     def __repr__(self):
         return "<Artifact(id=%r,title='%s',description='%s',type='%s',url='%s',owner='%r',files='%r',tags='%r',metadata='%r',publication='%r')>" % (
