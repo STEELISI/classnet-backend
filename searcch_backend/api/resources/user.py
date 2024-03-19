@@ -239,7 +239,7 @@ class UserProfileAPI(Resource):
             
             email_not_unique = db.session.query(Person).filter(Person.email == email.strip(), Person.id != user.person_id).first() is not None
             if email_not_unique:  # Case A
-                response = jsonify({"message": "Another user has been registered with the same email",
+                response = jsonify({"message": "You've previously logged in using a CILogon/Google/GitHub account linked with this email. Please logout and log back in with that account.",
                                     "action": "NON_UNIQUE_EMAIL"})
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 200
