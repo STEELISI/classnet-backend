@@ -721,6 +721,10 @@ class Artifact(db.Model):
     __clone_skip_fields__ = (
         'importer_id', 'exporter_id', 'parent_id', 'owner_id', 'ctime', 'mtime',
     )
+    __table_args__ = (
+        db.UniqueConstraint("artifact_group_id"),
+    )
+
 
     def __repr__(self):
         return "<Artifact(id=%r,title='%s',description='%s',type='%s',url='%s',owner='%r',files='%r',tags='%r',metadata='%r',publication='%r')>" % (
@@ -935,7 +939,7 @@ class Labels(db.Model):
     __tablename__ = "labels"
     
     label_id = db.Column(db.String(128),primary_key=True, nullable=False)
-    artifact_id = db.Column(db.Integer, db.ForeignKey("artifacts.id", ondelete='CASCADE'))
+    artifact_id = db.Column(db.Integer, db.ForeignKey("artifacts.artifact_group_id", ondelete='CASCADE'), nullable=False)
     label_url = db.Column(db.String(2048), nullable=False)
 
     def __repr__(self):
