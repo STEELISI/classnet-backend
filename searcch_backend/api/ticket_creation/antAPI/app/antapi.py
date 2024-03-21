@@ -13,6 +13,7 @@ from .users import (
 )
 from .paths.user import USER
 from .paths.trac import TRAC
+from .paths.datasets import DATASETS
 
 _deployment_path = os.path.realpath(os.path.dirname(__file__)+'/..')
 APP = Flask(__name__, instance_path=_deployment_path + '/instance')
@@ -30,6 +31,9 @@ APP.register_blueprint(USER)
 
 #/trac/...
 APP.register_blueprint(TRAC)
+
+#/datasets/...
+APP.register_blueprint(DATASETS)
 
 if __name__ == "__main__":
     APP.run()

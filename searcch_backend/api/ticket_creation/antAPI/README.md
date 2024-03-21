@@ -29,7 +29,7 @@ Next fetch all required packages:
 At this point, you should be able to run the package:
 
 ```
-   venv/bin/python run.py
+   venv/bin/python debug_run.py
 ```
 
 This step integrates it with apache using wsgi module (install separately): edit
@@ -151,6 +151,34 @@ On error, 401 is returned with an error message:
         "message": "ERROR cannot obtain ticket status: exception -  Ticket 13099 does not exist."
     }
 ```
+
+# Metadata Ingest
+
+Dataset metadata can be ingested by authenticating with a `datasets` realm and then posting JSON as follows:
+
+```
+    curl -X POST http://localhost:5000/datasets/meta/new \
+         -H 'x-access-token: eyJh...' \
+         -H 'Content-Type: application/json' \
+         -d '{
+                "datasetName": "xyz-20240101",
+                "shortDesc": "short description",
+                "longDesc": "long dataset description - this dataset contains network traffic collected...",
+                "availabilityStartDateTime": "2024-01-01 00:00:00",
+                "availabilityEndDateTime": "2024-01-01 00:00:01", 
+                "collectionStartDateTime": "2024-01-01 00:00:00",
+                "collectionEndDateTime": "2024-01-01 00:00:00",
+                "byteSize": 100,
+                "keywordList": "blah,blah blah",
+                "formatList": "text",
+                "anonymizationList": "cryptopan-full",
+                "providerName": "COMUNDA:yuri",
+                "useAgreement": "none"
+         }'
+```
+
+The example above contains all currently required fields.  Fields should be pre-validated before submitting
+in order to avoid excessive round-trips.
 
 
 # Administration
