@@ -117,6 +117,10 @@ class ArtifactContribute(Resource):
                                    type=str,
                                    required=False,
                                    help='missing retrievalInstructions in query string')
+        self.reqparse.add_argument(name='datasetReadme',
+                            type=str,
+                            required=False,
+                            help='missing datasetReadme in query string')
 
         super(ArtifactContribute, self).__init__()
 
