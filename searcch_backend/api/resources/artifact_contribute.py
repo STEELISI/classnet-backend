@@ -139,7 +139,7 @@ class ArtifactContribute(Resource):
         args["providerName"] = "COMUNDA:" + args["providerName"]
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
-            args["providerEmail"] = user_email
+            args["providerEmail"] = user_email[0]
 
             filtered_args = {k: v for k, v in args.items() if v != ''}
             LOG.error(f'Args submitted to antapi_datasets_meta_new: {filtered_args}')
