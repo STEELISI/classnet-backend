@@ -23,8 +23,8 @@ from searcch_backend.models.schema import (
     ArtifactReviewsSchema,
 )
 from searcch_backend.api.common.stats import StatsResource
-from searcch_backend.api.ticket_creation.antAPI.client.auth import AntAPIClientAuthenticator
-from searcch_backend.api.ticket_creation.antAPI.client.trac import (
+from antAPI.client.auth import AntAPIClientAuthenticator
+from antAPI.client.trac import (
    antapi_trac_ticket_new, antapi_trac_ticket_attach
 )
 from searcch_backend.api.common.auth import (

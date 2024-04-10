@@ -59,6 +59,7 @@ from searcch_backend.api.resources.artifact_search import ArtifactSearchIndexAPI
 from searcch_backend.api.resources.artifact_request import ArtifactRequestAPI
 from searcch_backend.api.resources.artifact_status import ArtifactRequestStatusAPI
 from searcch_backend.api.resources.artifact_request_list import ArtifactRequestListAPI
+from searcch_backend.api.resources.artifact_contribute import ArtifactContribute
 from searcch_backend.api.resources.admin_statistics import AdminStatistics
 from searcch_backend.api.resources.artifact_view import ArtifactViewAPI
 from searcch_backend.api.resources.organization import OrganizationAPI, OrganizationListAPI
@@ -100,6 +101,7 @@ api.add_resource(ArtifactCategoryAPI, approot + '/artifact/searchCategory', endp
 api.add_resource(ArtifactRequestAPI, approot + '/artifact/request/<int:artifact_group_id>', approot + '/artifact/request/<int:artifact_group_id>/<int:artifact_id>', endpoint='api.artifact_request')
 api.add_resource(ArtifactRequestStatusAPI, approot + '/artifact/status/<int:artifact_group_id>', endpoint='api.artifact_status')
 api.add_resource(ArtifactRequestListAPI, approot + '/artifact/requestList/', endpoint='api.artifact_request_list')
+api.add_resource(ArtifactContribute, approot + '/artifact/contribute', endpoint='api.artifact_contribute')
 api.add_resource(ArtifactViewAPI, approot + '/artifact/view/<int:artifact_group_id>', approot + '/artifact/view/<int:artifact_group_id>/<int:artifact_id>', endpoint='api.artifact_view')
 api.add_resource(ArtifactRelationshipResourceRoot, approot + '/artifact/relationships', endpoint='api.artifact_relationships')
 api.add_resource(ArtifactRelationshipResource, approot + '/artifact/relationship/<int:artifact_relationship_id>', endpoint='api.artifact_relationship')
