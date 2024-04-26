@@ -73,7 +73,6 @@ class DUAResource(Resource):
         soup = BeautifulSoup(dua_content, 'html.parser')
         
         if dua_name == 'usc_dua.md':
-
             dua_a = soup.find(id='dua_a_to_replicate').parent
             dua_a_to_replicate_og = dua_a.find(id='dua_a_to_replicate')
             dua_a_to_replicate = copy.deepcopy(dua_a_to_replicate_og)
@@ -138,6 +137,34 @@ class DUAResource(Resource):
             soup.find(id="target_audience").string = frgpData['targetAudience']
             soup.find(id="data_disposal").string = frgpData['dataDisposal']
             soup.find(id="research_justification").string = project_description
+
+        elif dua_name == 'dua-wes-20240420.md':
+            dua_a = soup.find(id='dua_a_to_replicate').parent
+            dua_a_to_replicate_og = dua_a.find(id='dua_a_to_replicate')
+            dua_a_to_replicate = copy.deepcopy(dua_a_to_replicate_og)
+            dua_a_to_replicate_og.clear()
+            for researcher in researchers:
+                to_replicate = copy.deepcopy(dua_a_to_replicate)
+                to_replicate.find(id='dua_a_name').string = researcher['name']
+                to_replicate.find(id='dua_a_email').string = researcher['email']
+                to_replicate.find(id='dua_a_contact').string = researcher['number']
+                dua_a.append(to_replicate)
+                        
+            soup.find(id='dua_b_category').string = dataset_category
+            soup.find(id='dua_b_sub_category').string = dataset_subcategory
+            soup.find(id='dua_b_dataset_name').string = dataset_name
+
+            soup.find(id='dua_c_project_name').string = project
+            soup.find(id='dua_c_desc').string = project_description
+
+            soup.find(id='rep_by').string = representative_researcher['name']
+            soup.find(id='rep_email').string = representative_researcher['email']
+            soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_title').string = representative_researcher['title']
+            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+
+            soup.find(id='poc_name').string = representative_researcher['name']
+            soup.find(id='poc_email').string = representative_researcher['email']
 
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
