@@ -4,7 +4,7 @@ from searcch_backend.api.app import db
 from searcch_backend.models.model import *
 from searcch_backend.models.schema import *
 from searcch_backend.api.common.stats import StatsResource
-from flask import jsonify, request
+from flask import abort, jsonify, request
 from flask_restful import reqparse, Resource
 from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 import logging
@@ -130,8 +130,6 @@ class ArtifactContribute(Resource):
         login_session = verify_token(request)
         args = self.reqparse.parse_args()
 
-        LOG.error("HI from Contribute!")
-        LOG.error(args)
         args["availabilityStartDateTime"] =datetime.strptime(args["availabilityStartDateTime"], "%Y-%m-%d")
         args["availabilityEndDateTime"] = datetime.strptime(args["availabilityEndDateTime"], "%Y-%m-%d")
         args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
@@ -172,3 +170,31 @@ class ArtifactContribute(Resource):
         
         
         return response
+    
+class ProviderPermissionsList(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        super().__init__()
+
+    def get(self):
+        if has_api_key(request):
+            verify_api_key(request)
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not (login_session):
+            abort(400, description="insufficient permission to access Contribute Datasets page")
+        
+        permissions_list = db.session.query(ProviderPermissions.provider).filter(ProviderPermissions.user_id == login_session.user_id).all()
+
+        if permissions_list is None:
+            permissions_list = []
+        else:
+            permissions_list = [provider[0] for provider in permissions_list]        
+        response = jsonify({
+                    "permissions_list": permissions_list
+                })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.status_code = 200
+        return response
+        

@@ -60,6 +60,7 @@ from searcch_backend.api.resources.artifact_request import ArtifactRequestAPI
 from searcch_backend.api.resources.artifact_status import ArtifactRequestStatusAPI
 from searcch_backend.api.resources.artifact_request_list import ArtifactRequestListAPI
 from searcch_backend.api.resources.artifact_contribute import ArtifactContribute
+from searcch_backend.api.resources.artifact_contribute import ProviderPermissionsList
 from searcch_backend.api.resources.admin_statistics import AdminStatistics
 from searcch_backend.api.resources.artifact_view import ArtifactViewAPI
 from searcch_backend.api.resources.organization import OrganizationAPI, OrganizationListAPI
@@ -154,3 +155,5 @@ api.add_resource(LicenseResource, approot + '/license/<int:org_id>', endpoint='a
 api.add_resource(DUAResource, approot + '/dua/<int:artifact_group_id>', endpoint='api.dua')
 
 api.add_resource(LabelsResource, approot + '/labels/<int:artifact_id>', endpoint='api.label')
+
+api.add_resource(ProviderPermissionsList, approot + '/provider_permissions_list', endpoint='api.provider_permissions_list')
