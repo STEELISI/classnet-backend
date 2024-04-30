@@ -945,3 +945,12 @@ class Labels(db.Model):
     def __repr__(self):
         return "<Labels(label_id=%r, artifact_id=%r, label_url=%r)>" % (self.label_id, self.artifact_id, self.label_url)
 
+class ProviderPermissions(db.Model):
+    #Each row contains a user_id,provider pair which indicates that a user can contribute a dataset under this provider
+    __tablename__ = "provider_permissions"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
+    provider = db.Column(db.String(1024), nullable=False)
+    __table_args__ = (
+        db.UniqueConstraint("user_id","provider"),)
