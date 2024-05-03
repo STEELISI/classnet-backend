@@ -234,7 +234,27 @@ class UserProfileAPI(Resource):
 
         # E. An unauthenticated email is provided without an OTP
         # We restart the OTP authentication process by sending another email
-
+        
+        
+        # let any other changes to fields get applied and saved through db.session.commit(). After that we decide what to do with person.email
+        if name is not None:
+            person.name = name
+        if research_interests is not None:
+            person.research_interests = research_interests
+        if website is not None:
+            person.website = website
+        if profile_photo is not None:
+            person.profile_photo = profile_photo
+        if position is not None:
+            person.position = position
+        if public_key is not None:
+            person.public_key = public_key
+        if countryCode is not None:
+            person.countryCode = countryCode
+        if mobileNumber is not None:
+            person.mobileNumber = mobileNumber
+        db.session.commit()
+        
         if email is not None:
             
             email_not_unique = db.session.query(Person).filter(Person.email == email.strip(), Person.id != user.person_id).first() is not None
@@ -294,26 +314,9 @@ class UserProfileAPI(Resource):
                 else:
                     person.emailAuthenticated = True
                     person.email = email
-        # Case B   
-        if name is not None:
-            person.name = name
-        if research_interests is not None:
-            person.research_interests = research_interests
-        if website is not None:
-            person.website = website
-        if profile_photo is not None:
-            person.profile_photo = profile_photo
-        if email:
-            person.email = email
-        if position is not None:
-            person.position = position
-        if public_key is not None:
-            person.public_key = public_key
-        if countryCode is not None:
-            person.countryCode = countryCode
-        if mobileNumber is not None:
-            person.mobileNumber = mobileNumber
+        
 
+        # Case B: Notice that in this case person.email == email and person.emailAuthenticated == True so we just let person.email stay the same and update the DB with any other changes to person
         db.session.commit()
 
         response = jsonify({"message": "updated user profile"})
