@@ -203,7 +203,8 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             "owner": { "id": artifact.owner.id },
             "views": view_count if view_count else 0,
             "dua_url": dua_url,
-            "category": artifact.category
+            "category": artifact.category,
+            "shortdesc": artifact.shortdesc
         }
 
         artifacts.append(abstract)
