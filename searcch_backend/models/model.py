@@ -951,6 +951,8 @@ class ProviderPermissions(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
-    provider = db.Column(db.String(1024), nullable=False)
+    provider = db.Column(db.String(1024), db.ForeignKey("dua.provider", ondelete='CASCADE'), nullable=False)
+    collection = db.Column(db.String(1024), db.ForeignKey("dua.collection", ondelete='CASCADE'), nullable=False)
+
     __table_args__ = (
-        db.UniqueConstraint("user_id","provider"),)
+        db.UniqueConstraint("user_id","provider","collection"),)

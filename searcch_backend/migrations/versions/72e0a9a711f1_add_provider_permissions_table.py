@@ -22,9 +22,11 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('provider', sa.String(length=1024), nullable=False),
+    sa.Column('collection', sa.String(length=1024), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['provider', 'collection'], ['dua.provider', 'dua.collection'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id', 'provider')
+    sa.UniqueConstraint('user_id', 'provider', 'collection')
     )
   
     # ### end Alembic commands ###
