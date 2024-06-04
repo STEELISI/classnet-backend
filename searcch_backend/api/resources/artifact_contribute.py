@@ -144,7 +144,7 @@ class ArtifactContribute(Resource):
 
             try:
                 auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
-                response = antapi_datasets_meta_new(auth, **filtered_args)
+                response = antapi_datasets_meta_new(auth, **filtered_args, timeout=50)
                 response = jsonify({
                     "message": "Dataset Contribution Successful!",
                     "success":"true"
