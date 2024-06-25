@@ -453,8 +453,10 @@ class ArtifactCategoryAPI(Resource):
                     string = ' '.join(ARTIFACT_TYPES)
                     abort(400, description='invalid artifact type passed' + string + ' got '+a_type)
 
-        if(keywords == None):
+        if keywords is None:
             keywords = ''
+
+        LOG.error(f"Keyword = {keywords}")
 
         try:
             stats_search = StatsSearches(
