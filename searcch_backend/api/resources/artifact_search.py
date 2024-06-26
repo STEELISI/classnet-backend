@@ -456,8 +456,6 @@ class ArtifactCategoryAPI(Resource):
         if keywords is None:
             keywords = ''
 
-        LOG.error(f"Keyword = {keywords}")
-
         try:
             stats_search = StatsSearches(
                     search_term=keywords
