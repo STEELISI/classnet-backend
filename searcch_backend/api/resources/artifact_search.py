@@ -101,14 +101,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                                     ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
                                     ).join(ArtifactTag, ArtifactTag.artifact_id == Artifact.artifact_group_id)
         
-        
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
                         ).filter(combined_condition).group_by(Artifact.id, "num_ratings", 'avg_rating', 'num_reviews','view_count','dua_url')
-        
-        # query = query.filter(combined_tag_condition)
-
-        # LOG.error(f"query result = {query.all()}")
 
     if author_keywords or organization or category:
         rank_list = []
