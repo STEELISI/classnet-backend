@@ -90,11 +90,13 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         # Create a list of conditions for each keyword for partial matching on title
         title_conditions = [Artifact.title.ilike(f"%{keyword}%") for keyword in keyword_list]
         tag_conditions = [ArtifactTag.tag.ilike(f"%{keyword}%") for keyword in keyword_list]
+        description_condition = [Artifact.description.ilike(f"%{keyword}%") for keyword in keyword_list]
 
         # Combine title conditions using OR operator
         combined_title_condition = or_(*title_conditions)
         combined_tag_condition = or_(*tag_conditions)
-        combined_condition = or_(combined_title_condition,combined_tag_condition)
+        combined_description_condition = or_(*description_condition)
+        combined_condition = or_(combined_title_condition,combined_tag_condition, combined_description_condition)
 
         query = db.session.query(Artifact, func.array_agg(ArtifactTag.tag).label('tags'),
                                     'num_ratings', 'avg_rating', 'num_reviews', "view_count","dua_url"
