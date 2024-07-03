@@ -74,7 +74,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                                          'publication', 9),
                                     ], else_=10)
                                 ).order_by("category")
-        query = query.join(ArtifactGroup, ArtifactGroup.id == Artifact.artifact_group_id
+        query = query.join(ArtifactGroup, ArtifactGroup.id == Artifact.id
                         ).join(sqratings, ArtifactGroup.id == sqratings.c.artifact_group_id, isouter=True
                         ).join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
@@ -101,7 +101,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         query = db.session.query(Artifact, func.array_agg(ArtifactTag.tag).label('tags'),
                                     'num_ratings', 'avg_rating', 'num_reviews', "view_count","dua_url"
                                     ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
-                                    ).join(ArtifactTag, ArtifactTag.artifact_id == Artifact.artifact_group_id)
+                                    ).join(ArtifactTag, ArtifactTag.artifact_id == Artifact.id)
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
