@@ -74,7 +74,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                                          'publication', 9),
                                     ], else_=10)
                                 ).order_by("category")
-        query = query.join(ArtifactGroup, ArtifactGroup.id == Artifact.id
+        query = query.join(ArtifactGroup, ArtifactGroup.id == Artifact.artifact_group_id
                         ).join(sqratings, ArtifactGroup.id == sqratings.c.artifact_group_id, isouter=True
                         ).join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
