@@ -90,7 +90,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         # Create a list of conditions for each keyword for partial matching on title
         title_conditions = [Artifact.title.ilike(f"%{keyword}%") for keyword in keyword_list]
         tag_conditions = [ArtifactTag.tag.ilike(f"%{keyword}%") for keyword in keyword_list]
-        description_condition = [Artifact.description.ilike(f"%{keyword}%") for keyword in keyword_list]
+        description_condition = [Artifact.shortdesc.ilike(f"%{keyword}%") for keyword in keyword_list]
 
         # Combine title conditions using OR operator
         combined_title_condition = or_(*title_conditions)
