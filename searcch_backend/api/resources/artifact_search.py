@@ -303,6 +303,9 @@ class ArtifactSearchIndexAPI(Resource):
                     string = ' '.join(ARTIFACT_TYPES)
                     abort(400, description='invalid artifact type passed' + string + ' got '+a_type)
 
+        if keywords is None:
+            keywords = ''
+
         try:
             stats_search = StatsSearches(
                     search_term=keywords
@@ -310,7 +313,10 @@ class ArtifactSearchIndexAPI(Resource):
             db.session.add(stats_search)
             db.session.commit()
         except exc.SQLAlchemyError as error:
+            db.session.rollback()
             LOG.exception(f'Failed to log search term in the database. Error: {error}')
+        finally:
+            db.session.close() 
 
         result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, groupByCategory=False)
         response = jsonify(result)
