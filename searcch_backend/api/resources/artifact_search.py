@@ -58,7 +58,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     # create base query object
     if not keywords:
         logging.disable(logging.INFO) # disable to prevent excessive logging of all artifacts when loading the search page for the first time
-        query = db.session.query(Artifact,
+        query = db.session.query(Artifact, func.array_agg(ArtifactTag.tag).label('tags'),
                                     'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
                                     ).order_by(
                                     db.case([
@@ -78,7 +78,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                         ).join(sqratings, ArtifactGroup.id == sqratings.c.artifact_group_id, isouter=True
                         ).join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id
                         ).join(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id, isouter=True
-                        ).order_by((func.right(Artifact.title, 8)).desc())
+                        ).join(ArtifactTag, ArtifactTag.artifact_id == Artifact.artifact_group_id).group_by(Artifact.id, "num_ratings", 'avg_rating', 'num_reviews','view_count','dua_url').order_by((func.right(Artifact.title, 8)).desc())
     else:
         # search_query = db.session.query(ArtifactSearchMaterializedView.artifact_id, 
         #                                 func.ts_rank_cd(ArtifactSearchMaterializedView.doc_vector, func.websearch_to_tsquery("english", keywords)).label("rank")
@@ -89,17 +89,23 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
         # Create a list of conditions for each keyword for partial matching on title
         title_conditions = [Artifact.title.ilike(f"%{keyword}%") for keyword in keyword_list]
+        tag_conditions = [ArtifactTag.tag.ilike(f"%{keyword}%") for keyword in keyword_list]
+        description_condition = [Artifact.shortdesc.ilike(f"%{keyword}%") for keyword in keyword_list]
 
         # Combine title conditions using OR operator
         combined_title_condition = or_(*title_conditions)
-        query = db.session.query(Artifact, 
-                                    'num_ratings', 'avg_rating', 'num_reviews', "view_count", 'dua_url'
+        combined_tag_condition = or_(*tag_conditions)
+        combined_description_condition = or_(*description_condition)
+        combined_condition = or_(combined_title_condition,combined_tag_condition, combined_description_condition)
+
+        query = db.session.query(Artifact, func.array_agg(ArtifactTag.tag).label('tags'),
+                                    'num_ratings', 'avg_rating', 'num_reviews', "view_count","dua_url"
                                     ).join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id
-                                    )
+                                    ).join(ArtifactTag, ArtifactTag.artifact_id == Artifact.id)
         
         query = query.join(sqratings, Artifact.artifact_group_id == sqratings.c.artifact_group_id, isouter=True
                         ).join(sqreviews, Artifact.artifact_group_id == sqreviews.c.artifact_group_id, isouter=True
-                        ).filter(combined_title_condition)
+                        ).filter(combined_condition).group_by(Artifact.id, "num_ratings", 'avg_rating', 'num_reviews','view_count','dua_url')
 
     if author_keywords or organization or category:
         rank_list = []
@@ -171,7 +177,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
         categoryDict = {}
         for row in query.all():
-            artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+            artifact, tag, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
             if artifact.category not in categoryDict:
                 categoryDict[artifact.category] = dict(count=0, artifacts=[])
             
@@ -183,7 +189,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
     artifacts = []
     for row in result:
-        artifact, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
+        artifact, tag, num_ratings, avg_rating, num_reviews, view_count, dua_url = row
 
         abstract = {
             "id": artifact.id,
