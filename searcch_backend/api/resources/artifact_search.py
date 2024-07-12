@@ -68,18 +68,31 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     if keywords:
         # Create the tsvector dynamically and filter with plainto_tsquery, including tags
         tsvector = func.to_tsvector('english', Artifact.title + ' ' + Artifact.shortdesc + ' ' + func.coalesce(tag_aggregation.c.tags, ''))
-        tsquery = func.plainto_tsquery('english', keywords)
+        tsquery = func.to_tsquery('english', ' | '.join(keywords.split()))
         query = query.filter(tsvector.op('@@')(tsquery))
         
-        # Count keyword occurrences in title
-        keyword_counts = [func.strpos(Artifact.title, keyword) for keyword in keywords.split()]
-        keyword_count = sum([case([(kc > 0, 1)], else_=0) for kc in keyword_counts])
+        # Count keyword occurrences in title, tags, short desc
+        keyword_counts_title = [func.strpos(func.lower(Artifact.title), func.lower(keyword)) for keyword in keywords.split()]
+        keyword_counts_tags = [func.strpos(func.lower(tag_aggregation.c.tags), func.lower(keyword)) for keyword in keywords.split()]
+        keyword_counts_desc = [func.strpos(func.lower(Artifact.shortdesc), func.lower(keyword)) for keyword in keywords.split()]
 
-        #Ordering based on keyword matches in title
-        query = query.add_columns(keyword_count.label('keyword_count'))
-        query = query.order_by(desc('keyword_count'), desc(func.right(Artifact.title, 8)), Artifact.title)
+        #Setting weight for different matches
+        title_match_weight = 3
+        tags_match_weight = 1.5
+        description_match_weight = 0.75
+
+        keyword_count_title = sum([case([(kc > 0, title_match_weight)], else_=0) for kc in keyword_counts_title])
+        keyword_count_tags = sum([case([(kc > 0, tags_match_weight)], else_=0) for kc in keyword_counts_tags])
+        keyword_count_desc = sum([case([(kc > 0, description_match_weight)], else_=0) for kc in keyword_counts_desc])
+        
+        total_keyword_count = keyword_count_title + keyword_count_tags + keyword_count_desc
+
+        #Ordering based on total keyword score and tiltes date
+        query = query.add_columns(total_keyword_count.label('keyword_count_score'))
+        query = query.order_by(desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
 
     else:
+        #Ordering on last 8 characters in title (Date)
         query = query.order_by(desc(func.right(Artifact.title, 8)), Artifact.title)
 
     if author_keywords or organization or category:
@@ -117,6 +130,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         else:
             query = query.filter(Artifact.type == artifact_types[0])
 
+    # Categorize artifacts from query results, counting and storing their titles in a dictionary by category
     categoryDict = {}
     for row in query.all():
         if keywords:
@@ -128,6 +142,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         categoryDict[artifact.category]["count"] += 1
         categoryDict[artifact.category]["artifacts"].append(artifact.title)
 
+    #Fetching results based on page number
     total_results = query.count()
     artifacts = query.offset((page_num - 1) * items_per_page).limit(items_per_page).all()
 
@@ -319,94 +334,6 @@ class ArtifactRecommendationAPI(Resource):
 
 
 
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.status_code = 200
-        return response
-    
-class ArtifactCategoryAPI(Resource):
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument(name='keywords',
-                                   type=str,
-                                   required=False,
-                                   help='missing keywords in query string')
-        self.reqparse.add_argument(name='page',
-                                   type=int,
-                                   required=False,
-                                   default=1,
-                                   help='page number for paginated results')
-        self.reqparse.add_argument(name='items_per_page',
-                                   type=int,
-                                   required=False,
-                                   default=10,
-                                   help='items per page for paginated results')
-        
-        # filters
-        self.reqparse.add_argument(name='type',
-                                   type=str,
-                                   required=False,
-                                   action='append',
-                                   help='missing type to filter results')
-        self.reqparse.add_argument(name='author',
-                                   type=str,
-                                   required=False,
-                                   action='append',
-                                   help='missing author to filter results')
-        self.reqparse.add_argument(name='organization',
-                                   type=str,
-                                   required=False,
-                                   default='',
-                                   action='append',
-                                   help='missing organization to filter results')
-        self.reqparse.add_argument(name='owner',
-                                   type=str,
-                                   required=False,
-                                   action='append',
-                                   help='missing owner to filter results')
-        self.reqparse.add_argument(name='badge_id',
-                                   type=int,
-                                   required=False,
-                                   action='append',
-                                   help='badge IDs to search for')
-        self.reqparse.add_argument(name='category',
-                                   type=str,
-                                   required=False,
-                                   default='',
-                                   action='append',
-                                   help='missing category to filter results')
-
-        super(ArtifactCategoryAPI, self).__init__()
-
-
-    @staticmethod
-    def is_artifact_type_valid(artifact_type):
-        return artifact_type in ARTIFACT_TYPES
-
-    def get(self):
-        args = self.reqparse.parse_args()
-        keywords = args['keywords']
-        page_num = args['page']
-        items_per_page = args['items_per_page']
-
-        # artifact search filters
-        artifact_types = args['type']
-        author_keywords = args['author']
-        organization = args['organization']
-        owner_keywords = args['owner']
-        badge_id_list = args['badge_id']
-        category = args['category']
-        # sanity checks
-        if artifact_types:
-            for a_type in artifact_types:
-                if not ArtifactSearchIndexAPI.is_artifact_type_valid(a_type):
-                    string = ' '.join(ARTIFACT_TYPES)
-                    abort(400, description='invalid artifact type passed' + string + ' got '+a_type)
-
-        if keywords is None:
-            keywords = ''
-
-        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, groupByCategory=True)
-        response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
         return response
