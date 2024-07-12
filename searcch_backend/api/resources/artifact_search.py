@@ -18,7 +18,7 @@ def generate_artifact_uri(artifact_group_id, artifact_id=None):
     return url_for('api.artifact', artifact_group_id=artifact_group_id,
                    artifact_id=artifact_id)
 
-def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, groupByCategory):
+def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category):
     """ search for artifacts based on keywords, with optional filters by owner and affiliation """
     sqratings = db.session.query(
         ArtifactRatings.artifact_group_id,
@@ -117,18 +117,16 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         else:
             query = query.filter(Artifact.type == artifact_types[0])
 
-    if groupByCategory:
-        categoryDict = {}
-        for row in query.all():
-            if keywords:
-                artifact, _, num_ratings,avg_rating,num_reviews,view_count,dua_url, owenr_id, _ = row
-            else:
-                artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url, owner_id = row
-            if artifact.category not in categoryDict:
-                categoryDict[artifact.category] = dict(count=0, artifacts=[])
-            categoryDict[artifact.category]["count"] += 1
-            categoryDict[artifact.category]["artifacts"].append(artifact.title)
-        return dict(categoryDict=categoryDict)
+    categoryDict = {}
+    for row in query.all():
+        if keywords:
+            artifact, _, num_ratings,avg_rating,num_reviews,view_count,dua_url, owner_id, _ = row
+        else:
+            artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url, owner_id = row
+        if artifact.category not in categoryDict:
+            categoryDict[artifact.category] = dict(count=0, artifacts=[])
+        categoryDict[artifact.category]["count"] += 1
+        categoryDict[artifact.category]["artifacts"].append(artifact.title)
 
     total_results = query.count()
     artifacts = query.offset((page_num - 1) * items_per_page).limit(items_per_page).all()
@@ -161,12 +159,13 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             "shortdesc": artifact.shortdesc
         })
 
-    return dict(
+    artifact_dict = dict(
         page=page_num,
         total=total_results,
         pages=int(math.ceil(total_results / items_per_page)),
         artifacts=result_artifacts
     )
+    return dict(category_dict = categoryDict, artifact_dict = artifact_dict)
 
 class ArtifactSearchIndexAPI(Resource):
     def __init__(self):
@@ -262,7 +261,7 @@ class ArtifactSearchIndexAPI(Resource):
         finally:
             db.session.close() 
 
-        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, groupByCategory=False)
+        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category)
         response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
