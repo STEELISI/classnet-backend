@@ -186,16 +186,11 @@ class ProviderPermissionsList(Resource):
             abort(400, description="insufficient permission to access Contribute Datasets page")
         
         permissions_list = db.session.query(ProviderPermissions.provider, ProviderPermissions.collection).filter(ProviderPermissions.user_id == login_session.user_id).all()
+        result= []
 
-        if permissions_list is None:
-            permissions_list = []
-        else:
-            provider_list = [permission.provider for permission in permissions_list]
-            collection_list = [permission.collection for permission in permissions_list]      
-        response = jsonify({
-                    "provider_list": provider_list,
-                    "collection_list": collection_list,
-                })
+        if permissions_list is not None:
+            result = [{"provider": permission.provider, "collection":permission.collection } for permission in permissions_list]     
+        response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
         return response
