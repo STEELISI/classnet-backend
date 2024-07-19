@@ -1,0 +1,148 @@
+# <p style="text-align: center;">Wesley Hardaker’s Data Use Agreement</p><p style="text-align: center;">(Wesley Hardaker and Researcher Agreement v2024-04-19)</p>
+<hr />
+<br>
+THIS AGREEMENT (“Agreement”) is effective as of the date of the last signature below, by and between Wesley Hardaker (“DATASET PROVIDER”) and the party signing below as Researcher(“RESEARCHER”).
+
+WHEREAS, DATASET PROVIDER is in possession of confidential and proprietary information, trade secrets and know-how, in written, oral and electronic form, regarding the handling and usage of scrambled and sensitive internet traffic trace measurements that have been collected by DATASET PROVIDER (hereinafter collectively, the “Confidential Information”),
+
+WHEREAS, DATASET PROVIDER is willing to provide, and RESEARCHER desires to accept, access to the Confidential Information as specifically set forth in this Agreement.
+
+NOW, THEREFORE, the parties hereto, intending to be legally bound, hereby agree as follows:
+
+1. DATASET PROVIDER agrees to disclose Confidential Information, as listed in Attachment A of this Agreement, to RESEARCHER pursuant to the terms of this Agreement and only for the research purposes listed in Attachment C of the Memorandum of Agreement between RESEARCHER and the DATASET PROVIDER, dated and identified below in the signature block (“RESEARCHER MOA”) which is hereby incorporated herein. RESEARCHER shall maintain confidentiality of Confidential Information provided to RESEARCHER from DATASET PROVIDER, except as described below. RESEARCHER shall not disclose or provide copies of such Confidential Information to any person other than those persons listed on Attachment B of this Agreement.
+
+2. RESEARCHER shall agree that RESEARCHER will execute an additional Wesley Hardaker’s Data Use Agreement if granted access to additional Confidential Information beyond those datasets listed in Attachment A to this agreement.
+
+3. RESEARCHER shall agree that, as a condition of access to the dataset(s), DATASET PROVIDER has RESEARCHER’s consent that DATASET PROVIDER may make public the name of RESEARCHER, the name of RESEARCHER’s Sponsoring Institution, and the name of the dataset(s) that DATASET PROVIDER has made available to RESEARCHER under this Agreement.
+
+4. RESEARCHER shall not attempt to translate anonymized Confidential Information back to the identity of a specific individual.
+
+5.  RESEARCHER may publish research results based on the analysis of the Confidential Information, provided, however:
+    - Published results must not include any results that contain personally identifiable or otherwise sensitive information derived from the Confidential Information, including, but not limited to, any information that could be used to recreate the contents or the structure of the original trace data or the ability to map any data back to a specific individual.
+    - RESEARCHER must also acknowledge DATASET PROVIDER in all published works with a reference to Wesley Hardaker under the name “Wes Hardaker” similar to “We thank Wes Hardaker for the use of his dataset DATASET”, where DATASET is replaced by a description of the measurement dataset(s) used in the publication.
+
+6. RESEARCHER shall treat all the Confidential Information as confidential, and shall protect Confidential Information by using at least the same degree of care, but no less than a reasonable degree of care, to prevent the unauthorized use, dissemination, or publication of Confidential Information as RESEARCHER uses to protect its own confidential information of a like nature, and shall not itself use or reveal any of the Confidential Information, except as to any of such Confidential Information which RESEARCHER can establish: (a) at the time of disclosure is in the public domain; (b) after disclosure becomes part of the public domain by publication or otherwise, except by breach of this Agreement by RESEARCHER or breach by any other party under an agreement of confidentiality to DATASET PROVIDER; (c) is excepted by prior written approval of DATASET PROVIDER, the disclosure of which is permitted under this Agreement, or(d) is required by law to be disclosed; provided that prior to such disclosure, RESEARCHER notifies DATASET PROVIDER of such requirement so that DATASET PROVIDER may seek a protective order or other appropriate remedy. 
+   
+7. Upon receipt of the Confidential Information, DATASET PROVIDER hereby grants to RESEARCHER, a limited non-exclusive, revocable, non-transferable license to RESEARCHER to use the Confidential Information, and RESEARCHER agrees to use the Confidential Information solely for the research as described in Attachment C of the RESEARCHER MOA and subject to all other terms and conditions specified in this agreement. All title and remaining rights to the Confidential Information disclosed to RESEARCHER under this Agreement remain vested in DATASET PROVIDER.
+
+8. Any modification to this Agreement, and further contract or agreement between the parties hereto regarding the Confidential Information, shall be in writing.
+
+9. This Data Use Agreement may be terminated at any time at the discretion of either party, by informing the other party in writing. 
+
+10. RESEARCHER shall defend, indemnify, and hold DATASET PROVIDER harmless from and against any and all liability, loss, expense, attorneys’ fees, or claims for injury or damages arising out of the performance of this Agreement, but only in proportion to and to the extent such liability, loss, expense, attorneys’ fees, or claims for injury or damages are caused by or result from the gross negligence or willful conduct, intentional acts or omissions of the RESEARCHER, its officers, agents, or employees.
+
+11. NOTWITHSTANDING ANYTHING TO THE CONTRARY CONTAINED HEREIN, TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT WILL DATASET PROVIDER BE RESPONSIBLE FOR ANY INCIDENTAL, CONSEQUENTIAL, INDIRECT, SPECIAL, PUNITIVE,
+OR EXEMPLARY DAMAGES OF ANY KIND, INCLUDING DAMAGES FOR LOST GOODWILL, LOST PROFITS, LOST BUSINESS OR OTHER INDIRECT ECONOMIC DAMAGES, WHETHER SUCH CLAIM IS BASED ON CONTRACT, NEGLIGENCE, TORT (INCLUDING STRICT LIABILITY) OR OTHER LEGAL THEORY, AS A RESULT OF A BREACH OF ANY WARRANTY OR ANY OTHER TERM OF THIS AGREEMENT, AND REGARDLESS OF WHETHER A PARTY WAS ADVISED OR HAD REASON TO KNOW OF THE POSSIBILITY OF SUCH DAMAGES IN
+ADVANCE. 
+
+12. This Agreement is in full force and effective for the same term as the RESEARCHER MOA or this Agreement, or at most 12 months from the date of execution, whichever is earlier, unless terminated earlier as provided herein, or extended on the agreement of both parties. Upon termination or expiration of the RESEARCHER MOA and this Agreement, RESEARCHER shall follow the instructions of the DATASET PROVIDER to dispose of all data and copies and cease all use and make no further use of the Confidential Information, and any copies thereof shall be returned to DATASET PROVIDER by RESEARCHER if such return is requested. The confidentiality clause set forth in paragraph 5 above shall survive the term of this Agreement and shall remain in full force perpetually.
+
+13. RESEARCHER agrees that the disclosure of the Confidential Information without DATASET PROVIDER’s express written permission or as otherwise permitted under this Agreement may cause DATASET PROVIDER irreparable harm and that any breach or threatened breach of this Agreement by RESEARCHER may entitle DATASET PROVIDER to injunctive relief, in addition to any other legal or equitable remedies available to it, in any court of competent jurisdiction.
+
+14. This Agreement is binding upon the parties hereto and is not assignable and shall be construed under and governed by the laws of the State of California, without regard to its conflicts of laws principles.
+
+15. This Agreement represents the ENTIRE AGREEMENT between the RESEARCHER. This Agreement contains the entire agreement of the Parties and supersedes any prior negotiations, proposals or understandings relating to this Data Use Agreement. No modification, amendment or alteration of this Agreement will be effective unless written and signed by both Parties, except for address changes provided by one Party to the other.
+
+Parties have each caused this Agreement to be executed by their duly authorized representative.
+
+<table style="width: 100%; vertical-align: top; text-align: left; padding: 0px;">
+  <tr>
+    <td>
+        <span style="font-weight: bold">Researcher Representative</span><br>
+        By: <span id='rep_by' style='font-family: "Courier New", monospace;'></span><br> 
+        Name: <span id='rep_name'></span><br>
+        Email: <span id='rep_email'></span><br>
+        Title: <span id='rep_title'></span><br>
+        Date: <span id='rep_date'></span><br>
+    </td>
+    <td>
+        <span style="font-weight: bold">Wesley Hardaker</span><br>
+        By: ____________________________<br> 
+        Name: ________________________<br>
+        Email: _________________________<br>
+        Title: __________________________<br>
+        Date: _________________________<br>
+    </td>
+  </tr>
+</table>
+<br>
+<span style="font-weight: bold">Research Point-of-Contact</span> (for dataset delivery)<br>
+Name: <span id='poc_name'></span><br>
+Email: <span id='poc_email'></span><br>
+Request ID: ___________________<br>
+<br><br>
+<hr>
+<br>
+
+## <p style="text-align: center;">Attachment A</p>
+## <p style="text-align: center;">Datasets Comprising Confidential Information Disclosed to RESEARCHER /p>
+<br>
+<table style="width: 100%; text-align: center">
+    <tr>
+        <th> Category </th>
+        <th> Sub-category </th>
+        <th> Dataset Name </th>
+    </tr>
+    <tr id="dua_b_to_replicate">
+        <td>
+            <span id="dua_b_category" style="font-weight: normal">Category</span>
+        </td>
+        <td>
+            <span id="dua_b_sub_category" style="font-weight: normal">Sub-Category</span>
+        </td>
+        <td>
+            <span id="dua_b_dataset_name" style="font-weight: normal">Dataset Name</span>
+        </td>
+    </tr>
+</table>
+<br><br>
+<hr>
+<br>
+
+## <p style="text-align: center;">Attachment B</p>
+## <p style="text-align: center;">Researchers Permitted to Use Confidential Information listed in Attachment A:</p>
+<br>
+<table style="width: 100%; text-align: center">
+    <tr>
+        <th> Name </th>
+        <th> Email </th>
+        <th> Contact Number </th>
+    </tr>
+    <tr id="dua_a_to_replicate">
+        <td>
+            <span id="dua_a_name" style="font-weight: normal">Name</span>
+        </td>
+        <td>
+            <span id="dua_a_email" style="font-weight: normal">Email</span>
+        </td>
+        <td>
+            <span id="dua_a_contact" style="font-weight: normal">Contact Number</span>
+        </td>
+    </tr>
+</table>
+<br><br>
+<hr>
+<br>
+
+
+
+## <p style="text-align: center;">Attachment C</p>
+## <p style="text-align: center;">Description of research to be conducted</p>
+<br>
+<table style="width: 100%; text-align: center">
+    <tr>
+        <th> Project Name(s) </th>
+        <th> Brief Description of Topic </th>
+    </tr>
+    <tr id="dua_c_to_replicate">
+        <td>
+            <span id="dua_c_project_name" style="font-weight: normal">Name</span>
+        </td>
+        <td>
+            <span id="dua_c_desc" style="font-weight: normal">Description</span>
+        </td>
+    </tr>
+</table>
+<br><br>
+<hr>
+<br>
