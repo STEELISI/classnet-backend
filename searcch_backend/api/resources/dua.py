@@ -166,6 +166,17 @@ class DUAResource(Resource):
             soup.find(id='poc_name').string = representative_researcher['name']
             soup.find(id='poc_email').string = representative_researcher['email']
 
+        elif dua_name == 'dua-LaSIC-Netflow-00.md':
+            soup.find(id='rep_by').string = representative_researcher['name']
+            soup.find(id='rep_org').string = representative_researcher['organization']
+            soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+            soup.find(id='rep_email').string = representative_researcher['email']
+            soup.find(id='rep_ph').string = representative_researcher['number']
+            soup.find(id='rep_name1').string = representative_researcher['name']
+            soup.find(id='rep_email1').string = representative_researcher['email']
+            soup.find(id='rep_ph1').string = representative_researcher['number']
+            
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
         return response

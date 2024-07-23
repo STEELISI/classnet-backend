@@ -1,148 +1,79 @@
-# <p style="text-align: center;">Wesley Hardaker’s Data Use Agreement</p><p style="text-align: center;">(Wesley Hardaker and Researcher Agreement v2024-04-19)</p>
+# <p style="text-align: center;">Office of Research and Economic Development Agreement Request Form</p>
 <hr />
 <br>
-THIS AGREEMENT (“Agreement”) is effective as of the date of the last signature below, by and between Wesley Hardaker (“DATASET PROVIDER”) and the party signing below as Researcher(“RESEARCHER”).
 
-WHEREAS, DATASET PROVIDER is in possession of confidential and proprietary information, trade secrets and know-how, in written, oral and electronic form, regarding the handling and usage of scrambled and sensitive internet traffic trace measurements that have been collected by DATASET PROVIDER (hereinafter collectively, the “Confidential Information”),
+**Instructions**: If a principal investigator (PI) wishes to process an agreement through the Office of Research and Economic Development (ORED) that is NOT included as part of a project proposal packet, the PI must provide this completed form to ORED in MARC 430, together with the draft agreement if the PI has received one.
 
-WHEREAS, DATASET PROVIDER is willing to provide, and RESEARCHER desires to accept, access to the Confidential Information as specifically set forth in this Agreement.
+### 1. Type of Agreement: Memorandum of Understanding
 
-NOW, THEREFORE, the parties hereto, intending to be legally bound, hereby agree as follows:
 
-1. DATASET PROVIDER agrees to disclose Confidential Information, as listed in Attachment A of this Agreement, to RESEARCHER pursuant to the terms of this Agreement and only for the research purposes listed in Attachment C of the Memorandum of Agreement between RESEARCHER and the DATASET PROVIDER, dated and identified below in the signature block (“RESEARCHER MOA”) which is hereby incorporated herein. RESEARCHER shall maintain confidentiality of Confidential Information provided to RESEARCHER from DATASET PROVIDER, except as described below. RESEARCHER shall not disclose or provide copies of such Confidential Information to any person other than those persons listed on Attachment B of this Agreement.
+### 2. Contact Information
+Entity with which FIU is contracting:	 <span id='rep_org'></span> <br>
+Point of Contact at that entity: Name:	 <span id='rep_name'></span> <br>  Ph No: <span id='rep_ph'></span><br> Email: <span id="rep_email"></span> 
 
-2. RESEARCHER shall agree that RESEARCHER will execute an additional Wesley Hardaker’s Data Use Agreement if granted access to additional Confidential Information beyond those datasets listed in Attachment A to this agreement.
+### 3. Project Information - Does the Agreement:
+Relate to proposal pending in ORED? **No** <br> Relate to an awarded sponsored project? **Yes** <br> List Project ID: (award number, if any) <br>
+Relate to any intellectual property (IP)? **No** 
 
-3. RESEARCHER shall agree that, as a condition of access to the dataset(s), DATASET PROVIDER has RESEARCHER’s consent that DATASET PROVIDER may make public the name of RESEARCHER, the name of RESEARCHER’s Sponsoring Institution, and the name of the dataset(s) that DATASET PROVIDER has made available to RESEARCHER under this Agreement.
+### 4. Approvals relating to project:	
+IRB Approval: **N/A, no human subject**.  Protocol Title and Approval Number: <br> IBC Approval: **N/A, no biohazards**  Protocol Title and Approval Number: <br> IACUC Approval: **N/A, no animal subjects**  Protocol Title and Approval Number:
 
-4. RESEARCHER shall not attempt to translate anonymized Confidential Information back to the identity of a specific individual.
+### 5. Costs
+Any payments from FIU required in regard to the agreement? **No** <br> Project ID or Dept ID to be used the payment: **N/A** <br> Will FIU receive payment per the agreement?  **No**
 
-5.  RESEARCHER may publish research results based on the analysis of the Confidential Information, provided, however:
-    - Published results must not include any results that contain personally identifiable or otherwise sensitive information derived from the Confidential Information, including, but not limited to, any information that could be used to recreate the contents or the structure of the original trace data or the ability to map any data back to a specific individual.
-    - RESEARCHER must also acknowledge DATASET PROVIDER in all published works with a reference to Wesley Hardaker under the name “Wes Hardaker” similar to “We thank Wes Hardaker for the use of his dataset DATASET”, where DATASET is replaced by a description of the measurement dataset(s) used in the publication.
+### 6. MDCPS: 
+As a result of this agreement, will any FIU employees be permitted access to Florida public school grounds when children are present OR have direct contact with Florida K-12 public school students OR have access to Florida public school funds?  **No**
 
-6. RESEARCHER shall treat all the Confidential Information as confidential, and shall protect Confidential Information by using at least the same degree of care, but no less than a reasonable degree of care, to prevent the unauthorized use, dissemination, or publication of Confidential Information as RESEARCHER uses to protect its own confidential information of a like nature, and shall not itself use or reveal any of the Confidential Information, except as to any of such Confidential Information which RESEARCHER can establish: (a) at the time of disclosure is in the public domain; (b) after disclosure becomes part of the public domain by publication or otherwise, except by breach of this Agreement by RESEARCHER or breach by any other party under an agreement of confidentiality to DATASET PROVIDER; (c) is excepted by prior written approval of DATASET PROVIDER, the disclosure of which is permitted under this Agreement, or(d) is required by law to be disclosed; provided that prior to such disclosure, RESEARCHER notifies DATASET PROVIDER of such requirement so that DATASET PROVIDER may seek a protective order or other appropriate remedy. 
-   
-7. Upon receipt of the Confidential Information, DATASET PROVIDER hereby grants to RESEARCHER, a limited non-exclusive, revocable, non-transferable license to RESEARCHER to use the Confidential Information, and RESEARCHER agrees to use the Confidential Information solely for the research as described in Attachment C of the RESEARCHER MOA and subject to all other terms and conditions specified in this agreement. All title and remaining rights to the Confidential Information disclosed to RESEARCHER under this Agreement remain vested in DATASET PROVIDER.
+**NOTE: If answered “yes,” such person(s) must undergo Level 2 background screening as required by Fla. law to work on the project.**
 
-8. Any modification to this Agreement, and further contract or agreement between the parties hereto regarding the Confidential Information, shall be in writing.
+### 7. Other EH&S Approval/Insurance
+Does the proposed agreement involve diving, boating or fieldwork? **None**<br> If yes, EH&S prior approval will be required prior to ORED signature on the agreement.  
+Does the proposed agreement involve FIU receiving equipment? **No** 
 
-9. This Data Use Agreement may be terminated at any time at the discretion of either party, by informing the other party in writing. 
+### 8. Security/Classified Information/Export Control
+Does the proposed agreement seek to involve or potentially involve classified or sensitive information? **No** <br>
+Will any part of this project involve work outside the U.S.?  fill <br>
+Will any non-U.S. Citizens or non-U.S. permanent residents be involved with this project? **Yes**  <br> Will any equipment, technology or written know-how be exported or taken to any foreign country(ies)? **No** <br>
 
-10. RESEARCHER shall defend, indemnify, and hold DATASET PROVIDER harmless from and against any and all liability, loss, expense, attorneys’ fees, or claims for injury or damages arising out of the performance of this Agreement, but only in proportion to and to the extent such liability, loss, expense, attorneys’ fees, or claims for injury or damages are caused by or result from the gross negligence or willful conduct, intentional acts or omissions of the RESEARCHER, its officers, agents, or employees.
+### 9. For Confidentiality Agreements: 
+ORED may execute a confidentiality agreement (CA) for the purpose of the FIU employee who countersigns the CA to be able to obtain or exchange documentation to ascertain whether a sponsored project may be performed at FIU.  A project should NOT be commenced based only on a CA.  Rather, if after review of the documentation, it is determined that a sponsored project may be undertaken, the PI must submit a proposal to Pre-Award following the normal ORED procedures and a separate agreement for the project will be executed.   Please explain what potential sponsored project this CA may lead to:  **N/A**
 
-11. NOTWITHSTANDING ANYTHING TO THE CONTRARY CONTAINED HEREIN, TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT WILL DATASET PROVIDER BE RESPONSIBLE FOR ANY INCIDENTAL, CONSEQUENTIAL, INDIRECT, SPECIAL, PUNITIVE,
-OR EXEMPLARY DAMAGES OF ANY KIND, INCLUDING DAMAGES FOR LOST GOODWILL, LOST PROFITS, LOST BUSINESS OR OTHER INDIRECT ECONOMIC DAMAGES, WHETHER SUCH CLAIM IS BASED ON CONTRACT, NEGLIGENCE, TORT (INCLUDING STRICT LIABILITY) OR OTHER LEGAL THEORY, AS A RESULT OF A BREACH OF ANY WARRANTY OR ANY OTHER TERM OF THIS AGREEMENT, AND REGARDLESS OF WHETHER A PARTY WAS ADVISED OR HAD REASON TO KNOW OF THE POSSIBILITY OF SUCH DAMAGES IN
-ADVANCE. 
+### 10. HIPAA Compliance: 
+(For a summary of Privacy Practices and HIPAA, see http://research.fiu.edu/irb/privacy-practices-and-hipaa): <br>
+Does the proposed agreement require a Business Associate Agreement? **No** <br>
+Does the proposed agreement seek to receive/disclose Protected Health Information (PHI) (e.g., medical records) from a HIPAA covered entity (i.e., hospital, clinic, FIU HWCOM, FIU CCF, etc.)?  **No**  
 
-12. This Agreement is in full force and effective for the same term as the RESEARCHER MOA or this Agreement, or at most 12 months from the date of execution, whichever is earlier, unless terminated earlier as provided herein, or extended on the agreement of both parties. Upon termination or expiration of the RESEARCHER MOA and this Agreement, RESEARCHER shall follow the instructions of the DATASET PROVIDER to dispose of all data and copies and cease all use and make no further use of the Confidential Information, and any copies thereof shall be returned to DATASET PROVIDER by RESEARCHER if such return is requested. The confidentiality clause set forth in paragraph 5 above shall survive the term of this Agreement and shall remain in full force perpetually.
+**Note:** If you answered yes to either of the above  questions, ,  answer all questions in section 11 below.  If you answered no to both questions above, skip to section 12.
 
-13. RESEARCHER agrees that the disclosure of the Confidential Information without DATASET PROVIDER’s express written permission or as otherwise permitted under this Agreement may cause DATASET PROVIDER irreparable harm and that any breach or threatened breach of this Agreement by RESEARCHER may entitle DATASET PROVIDER to injunctive relief, in addition to any other legal or equitable remedies available to it, in any court of competent jurisdiction.
+### 11. HIPAA Data Use Agreements:
+Data will be transferred to the recipient as a limited data set (i.e., will only contain one or more of the following HIPAA PHI identifiers and no other PHI identifier: geographic subdivisions other than address [5 digit zip code w/out 4 digit extension, state, county, town] and/or dates [such as dates of birth, death, admission, service, discharge]). See http://research.fiu.edu/irb/privacy-practices-and-hipaa for a full listing of the PHI identifiers. **No**
 
-14. This Agreement is binding upon the parties hereto and is not assignable and shall be construed under and governed by the laws of the State of California, without regard to its conflicts of laws principles.
+**Note:** If answered "yes" to item 11, and FIU is the recipient of the data, the data security plan will undergo review by the FIU Information Security & HIPAA Security Officer to ensure appropriate data security measures are implemented. 
 
-15. This Agreement represents the ENTIRE AGREEMENT between the RESEARCHER. This Agreement contains the entire agreement of the Parties and supersedes any prior negotiations, proposals or understandings relating to this Data Use Agreement. No modification, amendment or alteration of this Agreement will be effective unless written and signed by both Parties, except for address changes provided by one Party to the other.
+### 12. Non-HIPAA Data Use Agreements (No PHI involved):
+Data will be transferred to the recipient:<br>
+   **A. In a de-identified (anonymous) format** (i.e., will not contain any identifiers or any unique codes that link to a master key) **Yes**   OR <br>
+   **B. In a directly identifiable format** (e.g., will contain names or any other identifier that is directly associated with a subject) **No**    OR <br>
+ **C. In a coded format** (i.e., will contain unique codes that link to subjects via a master key) **No** <br>
 
-Parties have each caused this Agreement to be executed by their duly authorized representative.
+### 13. Conflict of Interest:
+Are there any potential financial or other conflict of interest for any FIU personnel who will be involved with this agreement? (For definitions and more information, refer to the Conflict of Interest in Research policy found on http://policies.fiu.edu/record_profile.php?id=572.)  **No**      
+
+**PI, are agreement terms acceptable and will you comply with the terms?  Yes**
 
 <table style="width: 100%; vertical-align: top; text-align: left; padding: 0px;">
   <tr>
     <td>
-        <span style="font-weight: bold">Researcher Representative</span><br>
-        By: <span id='rep_by' style='font-family: "Courier New", monospace;'></span><br> 
-        Name: <span id='rep_name'></span><br>
-        Email: <span id='rep_email'></span><br>
-        Title: <span id='rep_title'></span><br>
-        Date: <span id='rep_date'></span><br>
-    </td>
-    <td>
-        <span style="font-weight: bold">Wesley Hardaker</span><br>
-        By: ____________________________<br> 
-        Name: ________________________<br>
-        Email: _________________________<br>
-        Title: __________________________<br>
-        Date: _________________________<br>
+        PI Signature:<br>
+        <span id='rep_by' style='font-family: "Courier New", monospace;'></span><br><br> 
+        Printed Name: <br>
+        <span id='rep_name1'></span><br><br>
+        Date Signed: <br>
+        <span id='rep_date'></span><br><br>
+        Ph No: <br>
+        <span id='rep_ph1'></span><br><br>
+        Email: <br>
+        <span id='rep_email1'></span><br><br>
     </td>
   </tr>
 </table>
-<br>
-<span style="font-weight: bold">Research Point-of-Contact</span> (for dataset delivery)<br>
-Name: <span id='poc_name'></span><br>
-Email: <span id='poc_email'></span><br>
-Request ID: ___________________<br>
-<br><br>
-<hr>
-<br>
-
-## <p style="text-align: center;">Attachment A</p>
-## <p style="text-align: center;">Datasets Comprising Confidential Information Disclosed to RESEARCHER /p>
-<br>
-<table style="width: 100%; text-align: center">
-    <tr>
-        <th> Category </th>
-        <th> Sub-category </th>
-        <th> Dataset Name </th>
-    </tr>
-    <tr id="dua_b_to_replicate">
-        <td>
-            <span id="dua_b_category" style="font-weight: normal">Category</span>
-        </td>
-        <td>
-            <span id="dua_b_sub_category" style="font-weight: normal">Sub-Category</span>
-        </td>
-        <td>
-            <span id="dua_b_dataset_name" style="font-weight: normal">Dataset Name</span>
-        </td>
-    </tr>
-</table>
-<br><br>
-<hr>
-<br>
-
-## <p style="text-align: center;">Attachment B</p>
-## <p style="text-align: center;">Researchers Permitted to Use Confidential Information listed in Attachment A:</p>
-<br>
-<table style="width: 100%; text-align: center">
-    <tr>
-        <th> Name </th>
-        <th> Email </th>
-        <th> Contact Number </th>
-    </tr>
-    <tr id="dua_a_to_replicate">
-        <td>
-            <span id="dua_a_name" style="font-weight: normal">Name</span>
-        </td>
-        <td>
-            <span id="dua_a_email" style="font-weight: normal">Email</span>
-        </td>
-        <td>
-            <span id="dua_a_contact" style="font-weight: normal">Contact Number</span>
-        </td>
-    </tr>
-</table>
-<br><br>
-<hr>
-<br>
-
-
-
-## <p style="text-align: center;">Attachment C</p>
-## <p style="text-align: center;">Description of research to be conducted</p>
-<br>
-<table style="width: 100%; text-align: center">
-    <tr>
-        <th> Project Name(s) </th>
-        <th> Brief Description of Topic </th>
-    </tr>
-    <tr id="dua_c_to_replicate">
-        <td>
-            <span id="dua_c_project_name" style="font-weight: normal">Name</span>
-        </td>
-        <td>
-            <span id="dua_c_desc" style="font-weight: normal">Description</span>
-        </td>
-    </tr>
-</table>
-<br><br>
-<hr>
-<br>
