@@ -5,7 +5,7 @@ from searcch_backend.models.model import *
 from searcch_backend.models.schema import *
 from flask import abort, jsonify, url_for, request
 from flask_restful import reqparse, Resource
-from sqlalchemy import func, desc, or_, case, exc
+from sqlalchemy import func, desc, or_, case, exc, and_
 from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 import math
 import logging
@@ -52,7 +52,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     ).outerjoin(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id
     ).outerjoin(sqreviews, ArtifactGroup.id == sqreviews.c.artifact_group_id
     ).outerjoin(StatsArtifactViews, Artifact.artifact_group_id == StatsArtifactViews.artifact_group_id
-    ).outerjoin(DUA, Artifact.collection == DUA.collection
+    ).join(DUA, and_(Artifact.collection == DUA.collection, Artifact.provider == DUA.provider)
     ).outerjoin(tag_aggregation, tag_aggregation.c.artifact_id == Artifact.id
     ).filter(ArtifactPublication.id != None).group_by(
         Artifact.id,
@@ -104,8 +104,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
 
         if organization:
             if type(organization) is list:
-                organization = ' or '.join(organization)
-            query = query.filter(Artifact.provider == organization)
+                query = query.filter(Artifact.provider.in_(organization))
+            else:
+                query = query.filter(Artifact.provider == organization)
 
         if category:
             if type(category) is list:
@@ -254,6 +255,7 @@ class ArtifactSearchIndexAPI(Resource):
         owner_keywords = args['owner']
         badge_id_list = args['badge_id']
         category = args['category']
+        LOG.error(f'Organization val = {organization}')
         # sanity checks
         if artifact_types:
             for a_type in artifact_types:
