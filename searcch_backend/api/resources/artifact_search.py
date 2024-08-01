@@ -275,8 +275,8 @@ class ArtifactSearchIndexAPI(Resource):
         except exc.SQLAlchemyError as error:
             db.session.rollback()
             LOG.exception(f'Failed to log search term in the database. Error: {error}')
-        finally:
-            db.session.close() 
+        # finally:
+        #     db.session.close() 
 
         result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category)
         response = jsonify(result)
