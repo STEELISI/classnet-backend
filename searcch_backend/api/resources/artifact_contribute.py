@@ -134,7 +134,7 @@ class ArtifactContribute(Resource):
         args["availabilityEndDateTime"] = datetime.strptime(args["availabilityEndDateTime"], "%Y-%m-%d")
         args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
         args["collectionEndDateTime"] =datetime.strptime(args["collectionEndDateTime"], "%Y-%m-%d")
-        args["providerName"] = "COMUNDA:" + args["providerName"]
+        args["providerName"] = args["providerName"]
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
             args["providerEmail"] = user_email[0]
