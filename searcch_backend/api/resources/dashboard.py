@@ -39,8 +39,8 @@ class UserDashboardAPI(Resource):
         # artifacts owned by the logged-in user
         artifact_schema = ArtifactSchema(many=True, only=('artifact_group_id', 'id', 'type', 'title', 'ctime'))
         owned_artifacts = db.session.query(Artifact)\
-            .join(ArtifactPublication, ArtifactPublication.artifact_id == Artifact.id)\
-            .filter(Artifact.owner_id == login_session.user_id)
+            .join(ContributedArtifacts, func.trim(ContributedArtifacts.title) == func.trim(Artifact.title))\
+            .filter(ContributedArtifacts.user_id == login_session.user_id)
         given_ratings = db.session.query(ArtifactRatings.artifact_group_id, ArtifactRatings.rating, Artifact.title, Artifact.type)\
             .join(ArtifactGroup, ArtifactGroup.id == ArtifactRatings.artifact_group_id)\
             .join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id)\
