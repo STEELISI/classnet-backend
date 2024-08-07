@@ -47,29 +47,12 @@ class UserDashboardAPI(Resource):
             .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
             .filter(ArtifactRatings.user_id == login_session.user_id)\
             .all()
-        favorite_artifacts =  db.session.query(ArtifactFavorites, Artifact)\
-            .join(ArtifactGroup, ArtifactFavorites.artifact_group_id == ArtifactGroup.id)\
-            .join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id)\
-            .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
-            .filter(ArtifactFavorites.user_id == login_session.user_id)\
-            .all()
         artifact_requests = db.session.query(ArtifactRequests.artifact_group_id, ArtifactRequests.ticket_id, Artifact.title, Artifact.type)\
             .join(ArtifactGroup, ArtifactGroup.id == ArtifactRequests.artifact_group_id)\
             .join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id)\
             .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
             .filter(ArtifactRequests.requester_user_id == login_session.user_id)\
             .all()
-        
-
-        fav_artifacts = []
-        for (favorite, artifact) in favorite_artifacts:
-            result = {
-                "artifact_group_id": artifact.artifact_group_id,
-                #"id": artifact.id,
-                "type": artifact.type,
-                "title": artifact.title
-            }
-            fav_artifacts.append(result)
         
         rated_artifacts = [] 
         for artifact in given_ratings:
@@ -94,8 +77,7 @@ class UserDashboardAPI(Resource):
         response = jsonify({
             "owned_artifacts": artifact_schema.dump(owned_artifacts),
             "requested_artifacts": requested_artifacts,
-            "given_ratings": rated_artifacts,
-            "favorite_artifacts": fav_artifacts
+            "given_ratings": rated_artifacts
         })
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
