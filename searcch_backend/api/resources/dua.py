@@ -33,7 +33,7 @@ class DUAResource(Resource):
                                    help='missing project description') 
         self.reqparse.add_argument(name='dataset_name',
                                    type=str,
-                                   required=True,
+                                   required=False,
                                    help='missing dataset name')
         self.reqparse.add_argument(name='representative_researcher',
                                    type=str,
@@ -42,31 +42,62 @@ class DUAResource(Resource):
         self.reqparse.add_argument(name='frgpData',
                                    type=str,
                                    required=False,
-                                   help='missing FRGP Data') 
+                                   help='missing FRGP Data')
+        self.reqparse.add_argument(name='provider',
+                                   type=str,
+                                   required=False,
+                                   help='missing provider name') 
+        self.reqparse.add_argument(name='collection',
+                                   type=str,
+                                   required=False,
+                                   help='missing collection name')
+        self.reqparse.add_argument(name='listOfArtifactIDs',
+                                   type=str,
+                                   required=False,
+                                   help='missing listOfArtifactIDs')   
                          
         super(DUAResource, self).__init__()
-
-    def get(self, artifact_group_id):
+    
+    def get(self, artifact_group_id=None):
         args = self.reqparse.parse_args()
         researchers = args['researchers']
         project = args['project']
         project_description = args['project_description']
-        dataset_name = args['dataset_name']
         representative_researcher = args['representative_researcher']
         researchers = json.loads(researchers)
         representative_researcher = json.loads(representative_researcher)
+        listOfArtifactIDs = args['listOfArtifactIDs']
+        if listOfArtifactIDs:
+            listOfArtifactIDs = json.loads(listOfArtifactIDs)        
         
         if  args['frgpData'] is not None:
             frgpData = json.loads(args['frgpData'])
         else:
             frgpData = {}
-        
-        dataset_category = db.session.query(Artifact.category).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
-        dataset_category = "" if dataset_category is None else dataset_category  
-        dataset_subcategory = db.session.query(Artifact.datasetSubCategory).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
-        dataset_subcategory = "" if dataset_subcategory is None else dataset_subcategory  
-        
-        dua_name = db.session.query(DUA.dua_url).join(Artifact, and_(Artifact.provider == DUA.provider, Artifact.collection == DUA.collection)).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+        dataset_category = []
+        dataset_subcategory = []
+        dataset_name = []
+        if artifact_group_id:
+            dataset_category_str = db.session.query(Artifact.category).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+            dataset_category_str = dataset_category_str or ""
+            dataset_subcategory_str = db.session.query(Artifact.datasetSubCategory).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+            dataset_subcategory_str = dataset_subcategory_str or ""
+            dataset_category.append(dataset_category_str)
+            dataset_subcategory.append(dataset_subcategory_str)
+            dataset_name_str = args['dataset_name'] or ""
+            dataset_name.append(dataset_name_str)
+            dua_name = db.session.query(DUA.dua_url).join(Artifact, and_(Artifact.provider == DUA.provider, Artifact.collection == DUA.collection)).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+        else:
+            dua_name = db.session.query(DUA.dua_url).filter(args['provider'] == DUA.provider, args['collection'] == DUA.collection).first()[0]
+            for artifact_group_id,artifact_id in listOfArtifactIDs:
+                dataset_category_str = db.session.query(Artifact.category).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+                dataset_category_str = dataset_category_str or ""
+                dataset_subcategory_str = db.session.query(Artifact.datasetSubCategory).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+                dataset_subcategory_str = dataset_subcategory_str or ""
+                dataset_category.append(dataset_category_str)
+                dataset_subcategory.append(dataset_subcategory_str)
+                dataset_name_str = db.session.query(Artifact.title).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+                dataset_name.append(dataset_name_str)
         dua_file = open(f'searcch_backend/api/dua_content/{dua_name}', mode='r')
         dua_content = dua_file.read()
         dua_file.close()
@@ -84,10 +115,21 @@ class DUAResource(Resource):
                 to_replicate.find(id='dua_a_contact').string = researcher['number']
                 dua_a.append(to_replicate)
                         
-            soup.find(id='dua_b_category').string = dataset_category
-            soup.find(id='dua_b_sub_category').string = dataset_subcategory
-            soup.find(id='dua_b_dataset_name').string = dataset_name
+            category_div = soup.find(id='dua_b_category')
+            joined_dataset_category = '<br>'.join(dataset_category)
+            category_div.clear()  
+            category_div.append(BeautifulSoup(joined_dataset_category, 'html.parser'))
 
+            sub_category_div = soup.find(id='dua_b_sub_category')
+            joined_dataset_sub_category = '<br>'.join(dataset_subcategory)
+            sub_category_div.clear()  
+            sub_category_div.append(BeautifulSoup(joined_dataset_sub_category, 'html.parser'))
+
+            name_div = soup.find(id='dua_b_dataset_name')
+            joined_dataset_name = '<br>'.join(dataset_name)
+            name_div.clear()  
+            name_div.append(BeautifulSoup(joined_dataset_name, 'html.parser'))
+            
             soup.find(id='dua_c_project_name').string = project
             soup.find(id='dua_c_desc').string = project_description
 
@@ -150,9 +192,20 @@ class DUAResource(Resource):
                 to_replicate.find(id='dua_a_contact').string = researcher['number']
                 dua_a.append(to_replicate)
                         
-            soup.find(id='dua_b_category').string = dataset_category
-            soup.find(id='dua_b_sub_category').string = dataset_subcategory
-            soup.find(id='dua_b_dataset_name').string = dataset_name
+            category_div = soup.find(id='dua_b_category')
+            joined_dataset_category = '<br>'.join(dataset_category)
+            category_div.clear()  
+            category_div.append(BeautifulSoup(joined_dataset_category, 'html.parser'))
+
+            sub_category_div = soup.find(id='dua_b_sub_category')
+            joined_dataset_sub_category = '<br>'.join(dataset_subcategory)
+            sub_category_div.clear()  
+            sub_category_div.append(BeautifulSoup(joined_dataset_sub_category, 'html.parser'))
+
+            name_div = soup.find(id='dua_b_dataset_name')
+            joined_dataset_name = '<br>'.join(dataset_name)
+            name_div.clear()  
+            name_div.append(BeautifulSoup(joined_dataset_name, 'html.parser'))
 
             soup.find(id='dua_c_project_name').string = project
             soup.find(id='dua_c_desc').string = project_description

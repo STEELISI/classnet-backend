@@ -56,7 +56,7 @@ from searcch_backend.api.resources.artifact import (
     ArtifactRelationshipResourceRoot, ArtifactRelationshipResource, ArtifactOwnerRequestAPI, ArtifactOwnerRequestsAPI, ArtifactCategoryAPI)
 from searcch_backend.api.resources.artifact_compare import ArtifactCompareAPI
 from searcch_backend.api.resources.artifact_search import ArtifactSearchIndexAPI, ArtifactRecommendationAPI
-from searcch_backend.api.resources.artifact_request import ArtifactRequestAPI
+from searcch_backend.api.resources.artifact_request import ArtifactRequestAPI, ArtifactRequestCartAPI
 from searcch_backend.api.resources.artifact_status import ArtifactRequestStatusAPI
 from searcch_backend.api.resources.artifact_request_list import ArtifactRequestListAPI
 from searcch_backend.api.resources.artifact_contribute import ArtifactContribute
@@ -100,6 +100,7 @@ api.add_resource(ArtifactAPI, approot + '/artifact/<int:artifact_group_id>', app
 api.add_resource(ArtifactCompareAPI, approot + '/artifact/compare/<int:artifact_group_id>/<int:artifact_id>', endpoint='api.artifact_compare')
 api.add_resource(ArtifactSearchIndexAPI, approot + '/artifact/search', endpoint='api.artifact_search')
 api.add_resource(ArtifactRequestAPI, approot + '/artifact/request/<int:artifact_group_id>', approot + '/artifact/request/<int:artifact_group_id>/<int:artifact_id>', endpoint='api.artifact_request')
+api.add_resource(ArtifactRequestCartAPI, approot + '/artifact/requestCart', endpoint='api.artifact_request_cart')
 api.add_resource(ArtifactRequestStatusAPI, approot + '/artifact/status/<int:artifact_group_id>', endpoint='api.artifact_status')
 api.add_resource(ArtifactRequestListAPI, approot + '/artifact/requestList/', endpoint='api.artifact_request_list')
 api.add_resource(ArtifactContribute, approot + '/artifact/contribute', endpoint='api.artifact_contribute')
@@ -152,7 +153,7 @@ api.add_resource(BadgeResource, approot + '/badge/<int:badge_id>', endpoint='api
 api.add_resource(LicenseResourceRoot, approot + '/licenses', endpoint='api.licenses')
 api.add_resource(LicenseResource, approot + '/license/<int:org_id>', endpoint='api.license')
 
-api.add_resource(DUAResource, approot + '/dua/<int:artifact_group_id>', endpoint='api.dua')
+api.add_resource(DUAResource, approot + '/dua/<int:artifact_group_id>', approot + '/dua', endpoint='api.dua')
 
 api.add_resource(LabelsResource, approot + '/labels/<int:artifact_id>', endpoint='api.label')
 
