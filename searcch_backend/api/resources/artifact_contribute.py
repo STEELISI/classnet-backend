@@ -152,6 +152,7 @@ class ArtifactContribute(Resource):
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 200
 
+
             except Exception as err: # pylint: disable=broad-except
                 LOG.error(f"Failed to contribute dataset: {err}")
                 response = jsonify({
@@ -168,7 +169,17 @@ class ArtifactContribute(Resource):
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 201
         
-        
+        if(response.status_code == 200):
+            try:
+                contributed_artifact = ContributedArtifacts(user_id = login_session.user_id, title = args['datasetName'] )
+                db.session.add(contributed_artifact)
+                db.session.commit()
+                LOG.error(f"Committed to table")
+
+            except Exception as error:
+                db.session.rollback()
+                LOG.exception(f'Failed to write in the database. Error: {error}')
+
         return response
     
 class ProviderPermissionsList(Resource):

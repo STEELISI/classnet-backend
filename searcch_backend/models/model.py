@@ -956,3 +956,14 @@ class ProviderPermissions(db.Model):
 
     __table_args__ = (
         db.UniqueConstraint("user_id","provider","collection"),)
+    
+class ContributedArtifacts(db.Model):
+    #Each row contains a user_id,provider pair which indicates that a user can contribute a dataset under this provider
+    __tablename__ = "contributed_artifacts"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
+    title = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f"<ContributedArtifacts(id={self.id}, user_id={self.user_id}, artifact_title='{self.artifact_title}')>"
