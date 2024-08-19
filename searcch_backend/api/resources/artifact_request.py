@@ -336,6 +336,9 @@ class ArtifactRequestAPI(Resource):
         return response
 
 
+# This is a separate endpoint used to request a group of artifacts present in the artifact cart
+# listOfArtifactIDs is a list of lists where each inner list is of the format [artifact_group_id,artifact_id]
+# ANT API takes in a request for an artifact based on its title, so we add a list of titles based on the [artifact_group_id,artifact_id] pairs provided
 
 class ArtifactRequestCartAPI(Resource):
     def __init__(self):

@@ -15,6 +15,12 @@ from datetime import datetime
 
 LOG = logging.getLogger(__name__)
 
+# This endpoint is used to get a DUA file populated with user provided information
+# The DUA may either be requested by providing 
+# Case A: artifact_group_id 
+# Case B: the provider,collection name of the DUA
+# Note that Case B was introduced with the artifact cart feature where we retrieve the DUA for multiple group ids that share the same provider, collection
+
 class DUAResource(Resource):
 
     def __init__(self):
@@ -74,9 +80,13 @@ class DUAResource(Resource):
             frgpData = json.loads(args['frgpData'])
         else:
             frgpData = {}
+
+        #Regardless of case A or B, we add all names, categories and sub-categories to a list and join it and add it to the DUA html.
         dataset_category = []
         dataset_subcategory = []
         dataset_name = []
+
+        # Case A
         if artifact_group_id:
             dataset_category_str = db.session.query(Artifact.category).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
             dataset_category_str = dataset_category_str or ""
@@ -87,6 +97,7 @@ class DUAResource(Resource):
             dataset_name_str = args['dataset_name'] or ""
             dataset_name.append(dataset_name_str)
             dua_name = db.session.query(DUA.dua_url).join(Artifact, and_(Artifact.provider == DUA.provider, Artifact.collection == DUA.collection)).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+        # Case B
         else:
             dua_name = db.session.query(DUA.dua_url).filter(args['provider'] == DUA.provider, args['collection'] == DUA.collection).first()[0]
             for artifact_group_id,artifact_id in listOfArtifactIDs:
