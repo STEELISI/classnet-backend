@@ -362,12 +362,6 @@ class ArtifactRequestCartAPI(Resource):
             abort(400, description="insufficient permission to access unpublished artifact")
         artifact_request_ids = []
 
-        irb_file_list = request.files.get('pdf_file_list')
-        if not irb_file_list:
-            irb_file_list = None
-        else:
-            irb_file_list = json.loads(irb_file_list)
-
         user_id = login_session.user_id
         requester_ip_addr = request.headers.get('X-Forwarded-For', request.remote_addr)
 
@@ -417,9 +411,10 @@ class ArtifactRequestCartAPI(Resource):
                 Artifact.id == artifact_id).first()
             if not artifact:
                 abort(404, description="nonexistent artifact")
-            irb_file = None
-            if irb_file_list and irb_file_list[index]:
-                irb_file = irb_file_list[index].read()
+             
+            irb_file = request.files.get(f'irb_file_{index}', None)
+            if irb_file:
+                irb_file = irb_file.read()
 
             # Verify if user has already submitted a request
             artifact_request = db.session.query(ArtifactRequests).filter(
