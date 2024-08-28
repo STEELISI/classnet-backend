@@ -5,7 +5,7 @@ from searcch_backend.models.model import *
 from searcch_backend.models.schema import *
 from flask import abort, jsonify, url_for, request
 from flask_restful import reqparse, Resource
-from sqlalchemy import func, desc, or_, case, exc, and_
+from sqlalchemy import func, desc, or_, case, exc, and_, asc, nullsfirst, nullslast
 from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 import math
 import logging
@@ -18,7 +18,7 @@ def generate_artifact_uri(artifact_group_id, artifact_id=None):
     return url_for('api.artifact', artifact_group_id=artifact_group_id,
                    artifact_id=artifact_id)
 
-def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category):
+def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category,orderkey, order):
     """ search for artifacts based on keywords, with optional filters by owner and affiliation """
     sqratings = db.session.query(
         ArtifactRatings.artifact_group_id,
@@ -87,13 +87,68 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         
         total_keyword_count = keyword_count_title + keyword_count_tags + keyword_count_desc
 
-        #Ordering based on total keyword score and tiltes date
         query = query.add_columns(total_keyword_count.label('keyword_count_score'))
-        query = query.order_by(desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+
+        #If user sorts by options provided in frontend
+        if(orderkey == 'collection_date'):
+            if(order == 'asc'):
+                query = query.order_by(asc(Artifact.ctime),desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(Artifact.ctime),desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+                
+        
+        elif(orderkey == 'provider'):
+            if(order == 'asc'):
+                query = query.order_by(asc(Artifact.provider),desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(Artifact.provider), desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+
+
+        elif(orderkey == 'rating'):
+            if(order =='asc'):
+                query = query.order_by(asc(sqratings.c.avg_rating).nullsfirst(), desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(sqratings.c.avg_rating).nullslast(), desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+
+        elif(orderkey == 'reviews'):
+            if(order == 'asc'):
+                query = query.order_by(asc(sqreviews.c.num_reviews).nullsfirst(), desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(sqreviews.c.num_reviews).nullslast(), desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
+
+        else:
+            #Ordering based on total keyword score and tiltes date        
+            query = query.order_by(desc('keyword_count_score'), desc(func.right(Artifact.title, 8)), Artifact.title)
 
     else:
+        if(orderkey == 'collection_date'):
+            if(order == 'asc'):
+                query = query.order_by(asc(Artifact.ctime),desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(Artifact.ctime),desc(func.right(Artifact.title, 8)), Artifact.title)
+                
+        
+        elif(orderkey == 'provider'):
+            if(order == 'asc'):
+                query = query.order_by(asc(Artifact.provider), desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(Artifact.provider), desc(func.right(Artifact.title, 8)), Artifact.title)
+
+
+        elif(orderkey == 'rating'):
+            if(order =='asc'):
+                query = query.order_by(asc(sqratings.c.avg_rating).nullsfirst(),desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(sqratings.c.avg_rating).nullslast(),desc(func.right(Artifact.title, 8)), Artifact.title)
+
+        elif(orderkey == 'reviews'):
+            if(order == 'asc'):
+                query = query.order_by(asc(sqreviews.c.num_reviews).nullsfirst(),desc(func.right(Artifact.title, 8)), Artifact.title)
+            else:
+                query = query.order_by(desc(sqreviews.c.num_reviews).nullslast(),desc(func.right(Artifact.title, 8)), Artifact.title)
         #Ordering on last 8 characters in title (Date)
-        query = query.order_by(desc(func.right(Artifact.title, 8)), Artifact.title)
+        else:
+            query = query.order_by(desc(func.right(Artifact.title, 8)), Artifact.title)
 
     if author_keywords or organization or category:
         if author_keywords:
@@ -131,6 +186,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         else:
             query = query.filter(Artifact.type == artifact_types[0])
 
+    
+        
+
     # Categorize artifacts from query results, counting and storing their titles in a dictionary by category
     categoryDict = {}
     for row in query.all():
@@ -142,6 +200,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             categoryDict[artifact.category] = dict(count=0, artifacts=[])
         categoryDict[artifact.category]["count"] += 1
         categoryDict[artifact.category]["artifacts"].append(artifact.title)
+
 
     #Fetching results based on page number
     total_results = query.count()
@@ -234,6 +293,16 @@ class ArtifactSearchIndexAPI(Resource):
                                    default='',
                                    action='append',
                                    help='missing category to filter results')
+        self.reqparse.add_argument(name='order',
+                                   type=str,
+                                   required=False,
+                                   default='',
+                                   help='to order search result in asc or desc')
+        self.reqparse.add_argument(name='orderkey',
+                                   type=str,
+                                   required=False,
+                                   default='',
+                                   help='to order search result by')
 
         super(ArtifactSearchIndexAPI, self).__init__()
 
@@ -255,7 +324,12 @@ class ArtifactSearchIndexAPI(Resource):
         owner_keywords = args['owner']
         badge_id_list = args['badge_id']
         category = args['category']
-        LOG.error(f'Organization val = {organization}')
+
+        #artifact ordering
+        order = args['order']
+        orderkey = args['orderkey']
+        LOG.error(f"orderby = {order}")
+
         # sanity checks
         if artifact_types:
             for a_type in artifact_types:
@@ -278,7 +352,7 @@ class ArtifactSearchIndexAPI(Resource):
         # finally:
         #     db.session.close() 
 
-        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category)
+        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order)
         response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
