@@ -10,6 +10,7 @@ from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_to
 import math
 import logging
 import json
+import re
 from sqlalchemy.dialects import postgresql
 
 LOG = logging.getLogger(__name__)
@@ -245,6 +246,11 @@ class ArtifactSearchIndexAPI(Resource):
     def get(self):
         args = self.reqparse.parse_args()
         keywords = args['keywords']
+        if keywords:
+            pattern = r'^[a-zA-Z0-9][a-zA-Z0-9-_ ]*$'
+            regex = re.compile(pattern)
+            if regex.match(keywords) is None:
+                abort(401, description="Invalid input. Only letters, digits, dashes, underscores, and spaces are allowed, and it must start with a letter or digit.")
         page_num = args['page']
         items_per_page = args['items_per_page']
 
