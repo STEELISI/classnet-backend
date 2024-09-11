@@ -139,6 +139,8 @@ class ArtifactContribute(Resource):
         args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
         args["collectionEndDateTime"] =datetime.strptime(args["collectionEndDateTime"], "%Y-%m-%d")
         args["providerName"] = args["providerName"]
+        if (args['datasetCategory'] is not None and len(args['datasetCategory']) > 0):
+            args["keywordList"] = args["keywordList"]+",category:"+args['datasetCategory']
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
             args["providerEmail"] = user_email[0]
