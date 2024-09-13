@@ -141,6 +141,10 @@ class ArtifactContribute(Resource):
         args["providerName"] = args["providerName"]
         if (args['datasetCategory'] is not None and len(args['datasetCategory']) > 0):
             args["keywordList"] = args["keywordList"]+",category:"+args['datasetCategory']
+       
+        if 'datasetCategory' in args:
+            del args['datasetCategory']
+
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
             args["providerEmail"] = user_email[0]
@@ -149,8 +153,8 @@ class ArtifactContribute(Resource):
             LOG.error(f'Args submitted to antapi_datasets_meta_new: {filtered_args}')
 
             try:
-                auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
-                response = antapi_datasets_meta_new(auth, **filtered_args, timeout=50)
+                # auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
+                # response = antapi_datasets_meta_new(auth, **filtered_args, timeout=50)
                 response = jsonify({
                     "message": "Dataset Contribution Successful!",
                     "success":"true"
