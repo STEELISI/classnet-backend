@@ -153,8 +153,8 @@ class ArtifactContribute(Resource):
             LOG.error(f'Args submitted to antapi_datasets_meta_new: {filtered_args}')
 
             try:
-                # auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
-                # response = antapi_datasets_meta_new(auth, **filtered_args, timeout=50)
+                auth = AntAPIClientAuthenticator(**AUTH_DATASETS)
+                response = antapi_datasets_meta_new(auth, **filtered_args, timeout=50)
                 response = jsonify({
                     "message": "Dataset Contribution Successful!",
                     "success":"true"
