@@ -559,6 +559,7 @@ class ArtifactRequestCartAPI(Resource):
             "status": 0,
             "message": "Request submitted successfully",
             "request": ArtifactRequestSchema().dump(request_entry),
+            "newCart": person.cart
         })   
 
         response.headers.add('Access-Control-Allow-Origin', '*')

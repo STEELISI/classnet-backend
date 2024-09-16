@@ -1,8 +1,8 @@
 """add_cart_to_persons
 
 Revision ID: 897649b706ce
-Revises: 72e0a9a711f1
-Create Date: 2024-07-26 06:51:53.522322
+Revises: 29d8a106959c
+Create Date: 2024-09-16 06:51:53.522322
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '897649b706ce'
-down_revision = '72e0a9a711f1'
+down_revision = '29d8a106959c'
 branch_labels = None
 depends_on = None
 
