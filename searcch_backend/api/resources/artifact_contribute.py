@@ -117,6 +117,10 @@ class ArtifactContribute(Resource):
                                    type=str,
                                    required=False,
                                    help='missing retrievalInstructions in query string')
+        self.reqparse.add_argument(name='datasetCategory',
+                                   type=str,
+                                   required=False,
+                                   help='missing datasetCategory in query string')
         self.reqparse.add_argument(name='datasetReadme',
                             type=str,
                             required=False,
@@ -135,6 +139,12 @@ class ArtifactContribute(Resource):
         args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
         args["collectionEndDateTime"] =datetime.strptime(args["collectionEndDateTime"], "%Y-%m-%d")
         args["providerName"] = args["providerName"]
+        if (args['datasetCategory'] is not None and len(args['datasetCategory']) > 0):
+            args["keywordList"] = args["keywordList"]+",category:"+args['datasetCategory']
+       
+        if 'datasetCategory' in args:
+            del args['datasetCategory']
+
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
             args["providerEmail"] = user_email[0]
@@ -152,6 +162,7 @@ class ArtifactContribute(Resource):
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 200
 
+
             except Exception as err: # pylint: disable=broad-except
                 LOG.error(f"Failed to contribute dataset: {err}")
                 response = jsonify({
@@ -168,7 +179,17 @@ class ArtifactContribute(Resource):
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 201
         
-        
+        if(response.status_code == 200):
+            try:
+                contributed_artifact = ContributedArtifacts(user_id = login_session.user_id, title = args['datasetName'] )
+                db.session.add(contributed_artifact)
+                db.session.commit()
+                LOG.error(f"Committed to table")
+
+            except Exception as error:
+                db.session.rollback()
+                LOG.exception(f'Failed to write in the database. Error: {error}')
+
         return response
     
 class ProviderPermissionsList(Resource):
