@@ -328,6 +328,7 @@ class Person(db.Model):
     person_tsv = db.Column(TSVECTOR)
     position = db.Column(db.Text, nullable=True)
     public_key = db.Column(db.Text, nullable=True)
+    cart = db.Column(db.Text, nullable=True )
 
     def __repr__(self):
         return "<Person(id=%r,name=%r, email=%r)>" % (

@@ -140,6 +140,8 @@ class UserProfileAPI(Resource):
                                    type=str, required=False)
         self.reqparse.add_argument(name='mobileNumber', 
                                    type=str, required=False)
+        self.reqparse.add_argument(name='cart', 
+                                   type=str, required=False)
         
 
         super(UserProfileAPI, self).__init__()
@@ -177,7 +179,8 @@ class UserProfileAPI(Resource):
                         "publicKey":user.person.public_key,
                         "emailAuthenticated":user.person.emailAuthenticated,
                         "countryCode":user.person.countryCode,
-                        "mobileNumber":user.person.mobileNumber
+                        "mobileNumber":user.person.mobileNumber,
+                        "cart":user.person.cart,
                     },
                     "affiliations": UserAffiliationSchema(many=True).dump(affiliations),
                     
@@ -215,6 +218,7 @@ class UserProfileAPI(Resource):
         public_key = args['publicKey']
         countryCode = args['countryCode']
         mobileNumber = args['mobileNumber']
+        cart = args['cart']
         user = login_session.user
         person = db.session.query(Person).filter(Person.id == user.person_id).first()
 
@@ -253,6 +257,8 @@ class UserProfileAPI(Resource):
             person.countryCode = countryCode
         if mobileNumber is not None:
             person.mobileNumber = mobileNumber
+        if cart is not None:    
+            person.cart = cart
         db.session.commit()
         
         if email is not None:

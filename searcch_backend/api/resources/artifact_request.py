@@ -15,6 +15,7 @@ from searcch_backend.models.model import (
     ArtifactRatings,
     ArtifactReviews,
     ArtifactPublication,
+    Person
 )
 from searcch_backend.models.schema import (
     ArtifactSchema,
@@ -329,6 +330,237 @@ class ArtifactRequestAPI(Resource):
                 "message": "Request submitted successfully",
                 "request": ArtifactRequestSchema().dump(request_entry),
             })
+
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.status_code = 200
+        return response
+
+
+# This is a separate endpoint used to request a group of artifacts present in the artifact cart
+# listOfArtifactIDs is a list of lists where each inner list is of the format [artifact_group_id,artifact_id]
+# ANT API takes in a request for an artifact based on its title, so we add a list of titles based on the [artifact_group_id,artifact_id] pairs provided
+
+class ArtifactRequestCartAPI(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        super().__init__()
+        self.reqparse.add_argument(name='listOfArtifactIDs',
+                                   type=str,
+                                   required=True,
+                                   help='missing listOfArtifactIDs') 
+    
+    def post(self):
+        if has_api_key(request):
+            verify_api_key(request)
+
+        args = self.reqparse.parse_args()
+        listOfArtifactIDs = args['listOfArtifactIDs']
+        if listOfArtifactIDs:
+            listOfArtifactIDs = json.loads(listOfArtifactIDs)   
+         # Verify the user is the owner of the artifact group
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not login_session:
+            abort(400, description="insufficient permission to access unpublished artifact")
+        artifact_request_ids = []
+
+        user_id = login_session.user_id
+        requester_ip_addr = request.headers.get('X-Forwarded-For', request.remote_addr)
+
+        project = request.form.get('project')
+        if not project:
+            abort(400, description="missing project")
+        project_description = request.form.get('project_description')
+        if not project_description:
+            abort(400, description="missing project_description")
+        researchers = request.form.get('researchers')
+        if not researchers:
+            abort(400, description="missing researchers object")
+        representative_researcher_email = request.form.get('representative_researcher_email')
+        if not representative_researcher_email:
+            abort(400, description="missing representative researcher email")
+        agreement_file = request.files.get('file')
+        if not agreement_file:
+            abort(400, description="missing agreement file")
+        agreement_file = agreement_file.read()
+
+        frgpData = request.form.get('frgpData')
+        if not frgpData:
+            frgpData = None
+
+        agreement_file_folder = './agreement_file_folder'
+        if not os.path.exists(agreement_file_folder):
+            os.makedirs(agreement_file_folder)
+
+        # The filename below is unique since this else block can only be accessed once
+        # for a given (artifact_group_id,user_id) pair
+        filename = (agreement_file_folder
+                    + f'/signed_dua_artifact_group_id_{str(listOfArtifactIDs)}'
+                    + f'_requester_user_id_{user_id}.html'
+        )
+        with open(filename, 'wb+') as fout:
+            fout.write(agreement_file)
+
+        for index, (artifact_group_id,artifact_id) in enumerate(listOfArtifactIDs):
+            # Verify the group exists
+            artifact_group = db.session.query(ArtifactGroup).filter(
+                ArtifactGroup.id == artifact_group_id).first()
+            if not artifact_group:
+                abort(404, description="nonexistent artifact group")
+
+            # Verify the artifact exists
+            artifact = db.session.query(Artifact).filter(
+                Artifact.id == artifact_id).first()
+            if not artifact:
+                abort(404, description="nonexistent artifact")
+             
+            irb_file = request.files.get(f'irb_file_{index}', None)
+            if irb_file:
+                irb_file = irb_file.read()
+
+            # Verify if user has already submitted a request
+            artifact_request = db.session.query(ArtifactRequests).filter(
+                    ArtifactRequests.artifact_group_id == artifact_group_id,
+                    ArtifactRequests.requester_user_id == login_session.user_id
+            ).first()
+
+            if artifact_request:
+                response = jsonify({
+                    "status": 1,
+                    "error": "User has already submitted a request for artifact: " +  str(artifact_group_id)
+                })
+                return response
+            else:
+                request_entry = ArtifactRequests(
+                    artifact_group_id=artifact_group_id,
+                    requester_user_id=user_id,
+                    project=project,
+                    project_description=project_description,
+                    researchers=researchers,
+                    representative_researcher_email=representative_researcher_email,
+                    agreement_file=agreement_file,
+                    irb=irb_file,
+                    frgp_data=frgpData
+                )
+                # create a record now, so we can get it's id and submit it in a ticket
+                # if ticket creation fails, we'll have to undo this add
+                db.session.add(request_entry)
+                db.session.commit()
+                artifact_request_ids.append(str(request_entry.id))
+
+        researchers = json.loads(researchers)
+        artifact_timestamp = str(time.time())
+        representative_researcher = researchers[0]
+        for researcher in researchers:
+            if researcher['email'] == representative_researcher_email:
+                representative_researcher = researcher
+        datasets = []
+        for artifact_group_id,artifact_id in listOfArtifactIDs:
+            dataset_name_str = db.session.query(Artifact.title).filter(artifact_group_id == Artifact.artifact_group_id).first()[0]
+            datasets.append(dataset_name_str)
+        params = dict(
+            project=project,
+            project_description=project_description,
+            project_justification=request.form.get('project_justification', ''),
+            datasets=' '.join(datasets),
+            affiliation=representative_researcher['organization'],
+            artifact_request_id=' '.join(artifact_request_ids),
+            artifact_timestamp=artifact_timestamp,
+            requester_ip_addr=requester_ip_addr
+        )
+        for index,researcher in enumerate(researchers):
+            params['researcher_'+str(index+1)] = researcher['name']
+            params['researcher_email_'+str(index+1)] = researcher['email']
+
+        # Create a ticket for the artifact request
+        
+        # For testing purposes we do not create a request to the ANT backend if project name is TEST_PROJECT_NAME
+        if project == TEST_PROJECT_NAME:
+            # We know that ticket_id cannot be -1 so we use that as the dummy ticket_id value
+            # in the case where we want to test the requested and released ticket flow
+            request_entry.ticket_id = -1
+            ticket_id = -1
+        elif project == TEST_PROJECT_NAME+"-2":
+                # We know that ticket_id cannot be -2 so we use that as the dummy ticket_id value
+                # in the case where we want to test the requested but not released ticket flow
+            request_entry.ticket_id = -2
+            ticket_id = -2
+        else:
+            # Regular user flow
+            ticket_description = "=== What Datasets\n{datasets}\n\n=== Why these Datasets\n{project_justification}\n\n=== What Project\n{project}\n\n=== Project Description\n{project_description}\n\n=== Researchers\n"
+            for index,researcher in enumerate(researchers):
+                ticket_description+="{researcher_"+str(index+1)+"} (@{researcher_email_"+str(index+1)+"})\n"
+
+            ticket_description+="\n=== Researcher Affiliation\n{affiliation}\n\n=== Comunda Info\n||= request_id =|| {artifact_request_id} ||\n||= timestamp  =|| {artifact_timestamp} ||\n||= ip address =|| {requester_ip_addr} ||"
+            ticket_description=ticket_description.format(**params)
+            ticket_fields = dict(
+                description=ticket_description,
+                researcher=representative_researcher['name'],
+                email=representative_researcher['email'],
+                affiliation=representative_researcher['organization'],
+                datasets=' '.join(datasets),
+                ssh_key=representative_researcher.get('publicKey', ''),
+            )
+
+            error_response = jsonify({
+                "status": 500,
+                "status_code": 500,
+                "message": "Request could not be submitted due to a server error, please try again after sometime.",
+            })
+            error_response.headers.add('Access-Control-Allow-Origin', '*')
+
+            try:
+                auth = AntAPIClientAuthenticator(**AUTH)
+                ticket_id = int(antapi_trac_ticket_new(auth, **ticket_fields))
+                antapi_trac_ticket_attach(auth, ticket_id, [filename])
+
+            except Exception as err: # pylint: disable=broad-except
+                # undo the previous add
+                LOG.error(f"Failed to create ticket: {err}")
+                try:
+                    db.session.delete(request_entry)
+                except Exception as err: # pylint: disable=broad-except
+                    LOG.error(f"Can't undo entry for a failed ticket add id={request_entry.id}: {err}")
+                return error_response
+        for artifact_request_id in artifact_request_ids:
+            try:
+                db.session.query(ArtifactRequests) \
+                    .filter(artifact_request_id == ArtifactRequests.id) \
+                    .update({'ticket_id': ticket_id})
+                db.session.commit()
+            except Exception as err: # pylint: disable=broad-except (we expect to enter this except block if ticket_id was not assigned a value - in which case the request must be deleted since no ticket was assigned for it)
+                LOG.error(f"Ticket was created (#{ticket_id}), but db update failed: {str(err)})")
+                try:
+                    db.session.query(ArtifactRequests).filter(artifact_request_id == ArtifactRequests.id).delete()
+                    db.session.commit()
+                except Exception as err: # pylint: disable=broad-except
+                    LOG.error(f"Cannot delete db record: {str(err)})")
+                return error_response
+        setOfArtifactIDs = set(tuple(sublist) for sublist in listOfArtifactIDs)
+        error_response = jsonify({
+                "status": 500,
+                "status_code": 500,
+                "message": "Request could not be submitted due to a server error, please try again after sometime.",
+            })
+        try:
+            person = db.session.query(Person).filter(Person.id == login_session.user.person_id).first()
+            cart_list = json.loads(person.cart)
+            for item in cart_list[:]:
+                if (item['artifact_group_id'], item['artifact_id']) in setOfArtifactIDs:
+                    cart_list.remove(item)
+            person.cart = json.dumps(cart_list)
+            db.session.commit()
+        except Exception as err:
+            LOG.error(f"Cannot update cart: {str(err)})")
+            return error_response
+
+        response = jsonify({
+            "status": 0,
+            "message": "Request submitted successfully",
+            "request": ArtifactRequestSchema().dump(request_entry),
+            "newCart": person.cart
+        })   
 
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
