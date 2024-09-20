@@ -5,12 +5,14 @@ import logging
 
 from searcch_backend.config import app_config
 import flask
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # set up configurations
 app = Flask(__name__, instance_relative_config=True)
@@ -24,6 +26,7 @@ migrate = Migrate(app, db, directory="searcch_backend/migrations")
 ma = Marshmallow(app)
 api = Api(app)
 mail = Mail(app)
+limiter = Limiter(app=app, key_func = get_remote_address, default_limits = ['30 per minute'])
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
