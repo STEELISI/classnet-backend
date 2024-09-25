@@ -240,6 +240,13 @@ class DUAResource(Resource):
             soup.find(id='rep_name1').string = representative_researcher['name']
             soup.find(id='rep_email1').string = representative_researcher['email']
             soup.find(id='rep_ph1').string = representative_researcher['number']
+        
+        elif dua_name == 'dua-test-20240925.md':
+            soup.find(id='rep_by').string = representative_researcher['name']
+            soup.find(id='rep_email').string = representative_researcher['email']
+            soup.find(id='rep_name').string = representative_researcher['name']
+            soup.find(id='rep_title').string = representative_researcher['title']
+            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
             
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
