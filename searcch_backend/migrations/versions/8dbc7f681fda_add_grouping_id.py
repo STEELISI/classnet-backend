@@ -1,7 +1,7 @@
 """add_groupingId
 
 Revision ID: 8dbc7f681fda
-Revises: 29d8a106959c
+Revises: 897649b706ce
 Create Date: 2024-08-29 23:55:52.261822
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '8dbc7f681fda'
-down_revision = '29d8a106959c'
+down_revision = '897649b706ce'
 branch_labels = None
 depends_on = None
 
