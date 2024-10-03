@@ -702,6 +702,7 @@ class Artifact(db.Model):
     provider = db.Column(db.String(1024), nullable=False)
     shortdesc = db.Column(db.String(1024), nullable=False)
     irb = db.Column(db.Boolean,  nullable=False, default=False)
+    groupingId = db.Column(db.String(512), nullable = True)
     
     category = db.Column(db.Text, nullable=True)
     datasetSubCategory = db.Column(db.Text, nullable=True)
