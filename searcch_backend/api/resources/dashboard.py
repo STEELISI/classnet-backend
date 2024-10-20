@@ -9,6 +9,7 @@ from flask import abort, jsonify, request, url_for
 from flask_restful import reqparse, Resource
 from sqlalchemy import func, desc, sql, or_, nullslast
 import logging
+import base64
 
 LOG = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class UserDashboardAPI(Resource):
             .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
             .filter(ArtifactRatings.user_id == login_session.user_id)\
             .all()
-        artifact_requests = db.session.query(ArtifactRequests.artifact_group_id, ArtifactRequests.ticket_id, Artifact.title, Artifact.type)\
+        artifact_requests = db.session.query(ArtifactRequests.artifact_group_id, ArtifactRequests.ticket_id, Artifact.title, Artifact.type, ArtifactRequests.agreement_file)\
             .join(ArtifactGroup, ArtifactGroup.id == ArtifactRequests.artifact_group_id)\
             .join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id)\
             .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
@@ -66,11 +67,13 @@ class UserDashboardAPI(Resource):
 
         requested_artifacts = [] 
         for artifact in artifact_requests:
+            encoded_agreement_file = base64.b64encode(artifact.agreement_file).decode('utf-8') if artifact.agreement_file else None
             result = {
                 "artifact_group_id": artifact.artifact_group_id,
                 "ticket_id": artifact.ticket_id,
                 "title": artifact.title,
-                "type": artifact.type
+                "type": artifact.type,
+                "agreement_file":encoded_agreement_file
             }
             requested_artifacts.append(result)
 
