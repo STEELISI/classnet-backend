@@ -19,7 +19,7 @@ def generate_artifact_uri(artifact_group_id, artifact_id=None):
     return url_for('api.artifact', artifact_group_id=artifact_group_id,
                    artifact_id=artifact_id)
 
-def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category,orderkey, order):
+def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId):
     """ search for artifacts based on keywords, with optional filters by owner and affiliation """
     sqratings = db.session.query(
         ArtifactRatings.artifact_group_id,
@@ -67,11 +67,11 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     )
 
     if keywords:
-        # Create the tsvector dynamically and filter with plainto_tsquery, including tags
-        tsvector = func.to_tsvector('english', Artifact.title + ' ' + Artifact.shortdesc + ' ' + func.coalesce(tag_aggregation.c.tags, ''))
+        to_vectorize = func.concat(Artifact.title, case([(Artifact.shortdesc != None, Artifact.shortdesc)], else_=''), case([(tag_aggregation.c.tags != None, tag_aggregation.c.tags)], else_=''))         # Create the tsvector dynamically and filter with plainto_tsquery, including tags
+        tsvector = func.to_tsvector('english', to_vectorize)
         tsquery = func.to_tsquery('english', ' | '.join(keywords.split()))
         query = query.filter(tsvector.op('@@')(tsquery))
-        
+
         # Count keyword occurrences in title, tags, short desc
         keyword_counts_title = [func.strpos(func.lower(Artifact.title), func.lower(keyword)) for keyword in keywords.split()]
         keyword_counts_tags = [func.strpos(func.lower(tag_aggregation.c.tags), func.lower(keyword)) for keyword in keywords.split()]
@@ -151,7 +151,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         else:
             query = query.order_by(desc(func.right(Artifact.title, 8)), Artifact.title)
 
-    if author_keywords or organization or category:
+    if author_keywords or organization or category or groupingId:
         if author_keywords:
             if type(author_keywords) is list:
                 author_keywords = ' or '.join(author_keywords)
@@ -169,6 +169,13 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                 query = query.filter(Artifact.category.in_(category))
             else:
                 query = query.filter(Artifact.category == category)
+        
+        if groupingId:
+            if type(groupingId) is list:
+                query = query.filter(Artifact.groupingId.in_(groupingId))
+            else:
+                query = query.filter(Artifact.groupingId == groupingId)
+        
 
     if owner_keywords:
         if type(owner_keywords) is list:
@@ -190,8 +197,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     
         
 
-    # Categorize artifacts from query results, counting and storing their titles in a dictionary by category
-    categoryDict = {}
+    categoryDict = {}    # Categorize artifacts from query results, counting and storing their titles in a dictionary by category
+    groupingIdDict = {}    # Grouping artifacts from query results, counting and storing their titles in a dictionary by groupingId
+
     for row in query.all():
         if keywords:
             artifact, _, num_ratings,avg_rating,num_reviews,view_count,dua_url, owner_id, _ = row
@@ -202,6 +210,10 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         categoryDict[artifact.category]["count"] += 1
         categoryDict[artifact.category]["artifacts"].append(artifact.title)
 
+        if artifact.groupingId not in groupingIdDict:
+            groupingIdDict[artifact.groupingId] = dict(count=0, artifacts=[])
+        groupingIdDict[artifact.groupingId]["count"] += 1
+        groupingIdDict[artifact.groupingId]["artifacts"].append(artifact.title)
 
     #Fetching results based on page number
     total_results = query.count()
@@ -232,6 +244,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             "views": view_count if view_count else 0,
             "dua_url": dua_url,
             "category": artifact.category,
+            "groupingId": artifact.groupingId,
             "shortdesc": artifact.shortdesc
         })
 
@@ -241,7 +254,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         pages=int(math.ceil(total_results / items_per_page)),
         artifacts=result_artifacts
     )
-    return dict(category_dict = categoryDict, artifact_dict = artifact_dict)
+    return dict(category_dict = categoryDict, groupingId_dict = groupingIdDict, artifact_dict = artifact_dict)
 
 class ArtifactSearchIndexAPI(Resource):
     def __init__(self):
@@ -294,6 +307,12 @@ class ArtifactSearchIndexAPI(Resource):
                                    default='',
                                    action='append',
                                    help='missing category to filter results')
+        self.reqparse.add_argument(name='groupingId',
+                                   type=str,
+                                   required=False,
+                                   default='',
+                                   action='append',
+                                   help='missing groupingId to filter results')
         self.reqparse.add_argument(name='order',
                                    type=str,
                                    required=False,
@@ -330,6 +349,7 @@ class ArtifactSearchIndexAPI(Resource):
         owner_keywords = args['owner']
         badge_id_list = args['badge_id']
         category = args['category']
+        groupingId = args['groupingId']
 
         #artifact ordering
         order = args['order']
@@ -358,7 +378,7 @@ class ArtifactSearchIndexAPI(Resource):
         # finally:
         #     db.session.close() 
 
-        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order)
+        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId)
         response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
@@ -404,7 +424,7 @@ class ArtifactRecommendationAPI(Resource):
                 }, "avg_rating": None, "num_ratings": 0, "authors": []})
         else:
             keywords = [result.tag for result in top_keywords]
-            artifacts = search_artifacts(keywords=" or ".join(keywords), artifact_types = ARTIFACT_TYPES, page_num = page_num, items_per_page= 10, author_keywords = None,  organization = None, owner_keywords = None, badge_id_list = None)
+            artifacts = search_artifacts(keywords=" or ".join(keywords), artifact_types = ARTIFACT_TYPES, page_num = page_num, items_per_page= 10, author_keywords = None,  organization = None, owner_keywords = None, badge_id_list = None, groupingId = None)
             res =  db.session.query(ArtifactRatings.artifact_id, func.count(ArtifactRatings.id).label('num_ratings'), func.avg(ArtifactRatings.rating).label('avg_rating')).group_by("artifact_id").filter(ArtifactRatings.artifact_id == artifact_id).first()
             if res:
                 num_ratings = res.num_ratings if res.num_ratings else 0
