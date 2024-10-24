@@ -172,9 +172,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         
         if groupingId:
             if type(groupingId) is list:
-                query = query.filter(Artifact.groupingId.in_(groupingId))
+                query = query.filter(func.lower(Artifact.groupingId).in_([g.lower() for g in groupingId]))            
             else:
-                query = query.filter(Artifact.groupingId == groupingId)
+                query = query.filter(func.lower(Artifact.groupingId) == groupingId.lower())
         
 
     if owner_keywords:
