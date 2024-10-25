@@ -86,7 +86,7 @@ from searcch_backend.api.resources.license import LicenseResourceRoot, LicenseRe
 from searcch_backend.api.common.scheduled_tasks import UpdateStatsViews
 from searcch_backend.api.resources.dua import DUAResource
 from searcch_backend.api.resources.label import LabelsResource
-from searcch_backend.api.resources.provider import Provider
+from searcch_backend.api.resources.provider import Provider, ProviderCollection
 
 approot = app.config['APPLICATION_ROOT']
 
@@ -160,3 +160,5 @@ api.add_resource(LabelsResource, approot + '/labels/<int:artifact_id>', endpoint
 api.add_resource(ProviderPermissionsList, approot + '/provider_permissions_list', endpoint='api.provider_permissions_list')
 
 api.add_resource(Provider, approot + '/provider', endpoint='api.provider')
+
+api.add_resource(ProviderCollection, approot + '/provider_collection', endpoint='api.provider_collection')
