@@ -10,7 +10,6 @@ LOG = logging.getLogger(__name__)
 
 class Provider(Resource):
     def get(self):
-        LOG.error("here")
         try:
             providers = db.session.query(DUA.provider).distinct().all()
             provider_list = [provider[0] for provider in providers]
@@ -22,3 +21,20 @@ class Provider(Resource):
             response = jsonify({'error': 'An error occurred while fetching providers'})
             response.status_code = 500
             return response
+        
+class ProviderCollection(Resource):
+    def get(self):
+        try:
+            provider_collection_list = db.session.query(DUA.provider,DUA.collection).distinct().all()
+            result = []
+            result = [{"provider": provider_collection.provider, "collection":provider_collection.collection } for provider_collection in provider_collection_list] 
+            response = jsonify(result)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.status_code=200
+            return response
+        except Exception as e:
+            LOG.error(f"Error fetching providers: {e}")
+            response = jsonify({'error': 'An error occurred while fetching providers'})
+            response.status_code = 500
+            return response
+
