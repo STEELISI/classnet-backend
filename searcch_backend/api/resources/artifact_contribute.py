@@ -13,9 +13,80 @@ from antAPI.client.auth import AntAPIClientAuthenticator
 from searcch_backend.api.ticket_creation.antapi_client_conf import AUTH_DATASETS
 from datetime import datetime
 from antAPI.client.datasets import antapi_datasets_meta_new
+import re
 
 LOG = logging.getLogger(__name__)
 
+
+import re
+
+def parse_description(description):
+    # Remove <pre> and </pre> tags from the description
+    description = description.replace('<pre>', '')
+    description = description.replace('</pre>', '')
+
+    # Regular expressions for matching old and new table formats
+    regex_old = r'\+\-+\+.+?\+\-+\+'
+    regex_new = r'┌\─+\┬\─+┐.+?└\─+┴\─+┘'
+
+    using_old_format = False
+    content_inside_table = None
+
+    # Try to match the old format first
+    matches = re.search(regex_old, description, re.S)
+    if matches:
+        content_inside_table = matches.group(0)
+        using_old_format = True
+    else:
+        # If no match for the old format, try the new format
+        matches = re.search(regex_new, description, re.S)
+        if matches:
+            content_inside_table = matches.group(0)
+
+    if not content_inside_table:
+        return description  # If no table is found, return the description unchanged
+
+    # Remove borders depending on the format
+    if using_old_format:
+        # For old format, remove the `|-*+-*|` borders
+        regex_old_2 = r'\|-*\+-*\|\n'
+        content_inside_table_without_borders = re.sub(regex_old_2, '', content_inside_table)
+    else:
+        # For new format, remove the table borders
+        regex_new_2 = r'┌\─+\┬\─+┐'
+        regex_new_3 = r'└\─+┴\─+┘'
+        regex_new_4 = r'├\─+\┼\─+\┤'
+        content_inside_table_without_borders = re.sub(
+            f"{regex_new_2}|{regex_new_3}|{regex_new_4}", '', content_inside_table
+        )
+    # Split lines and filter out empty lines
+    lines = [line.strip() for line in content_inside_table_without_borders.split('\n') if line.strip()]
+    key_value_dict = {}
+
+# Initialize a variable to track the previous key (in case of missing keys)
+    previous_key = None
+
+    # Iterate through each line in the lines list
+    for line in lines:
+        # Split the line by '│' (delimiter) and remove extra spaces
+        delimeter = '|' if using_old_format else '│'
+        elements = [element for element in line.split(delimeter)]
+
+        if len(elements) == 4:
+            # If there are at least two elements (key and value)
+            key, value = elements[1].strip(), elements[2].strip()
+            if key == '':
+                # If the key is empty, append the value to the previous key's value
+                if previous_key:
+                    key_value_dict[previous_key] += ' ' + value
+            else:
+                # Otherwise, create a new key-value pair
+                key_value_dict[key] = value
+                previous_key = key
+        else:
+            LOG.error("!!!!MISSED DATA!!!!")
+
+    return key_value_dict
 
 class ArtifactContribute(Resource):
     def __init__(self):
@@ -183,6 +254,28 @@ class ArtifactContribute(Resource):
 
         return response
     
+    def get(self):
+        if has_api_key(request):
+            verify_api_key(request)
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not (login_session):
+            abort(400, description="insufficient permission to access Contribute Datasets page")
+        artifact_id = request.args.get('artifactId')
+        artifact_description = db.session.query(Artifact.description).filter(Artifact.id==artifact_id).first()
+        if artifact_description:
+            description = artifact_description[0]  # Extract the first element of the tuple (description)
+            parsed_data = parse_description(description) 
+        else:
+            parsed_data = {}
+
+        LOG.error(f'Description: {parsed_data}')
+        response = jsonify(parsed_data)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.status_code = 200
+        return response
+    
 class ProviderPermissionsList(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -207,3 +300,23 @@ class ProviderPermissionsList(Resource):
         response.status_code = 200
         return response
         
+class ArtifactLoad(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(name='artifactID',
+                                   type=int,
+                                   required=True,
+                                   help='missing artifact ID')
+        super().__init__()
+
+    def get(self):
+        if has_api_key(request):
+            verify_api_key(request)
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not (login_session):
+            abort(400, description="insufficient permission to access Contribute Datasets page")
+        args = self.reqparse.parse_args()
+        LOG.error()
+
