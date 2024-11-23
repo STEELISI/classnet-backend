@@ -21,6 +21,18 @@ LOG = logging.getLogger(__name__)
 import re
 
 def parse_description(description):
+
+    key_value_dict = {}
+
+    #Extracting Detailed Information part 
+    match = re.search(r"Detailed Information\n\n(.*?)<\\pre>", description, re.DOTALL)
+
+    # Extract the detailed information if available
+    detailed_info = match.group(1) if match else "Detailed Information not found."
+
+    # Wrap the information in a preformatted block for web display
+    key_value_dict['datasetReadme'] =  f"<pre>{detailed_info}</pre>"
+
     # Remove <pre> and </pre> tags from the description
     description = description.replace('<pre>', '')
     description = description.replace('</pre>', '')
@@ -61,7 +73,6 @@ def parse_description(description):
         )
     # Split lines and filter out empty lines
     lines = [line.strip() for line in content_inside_table_without_borders.split('\n') if line.strip()]
-    key_value_dict = {}
 
 # Initialize a variable to track the previous key (in case of missing keys)
     previous_key = None
@@ -270,7 +281,6 @@ class ArtifactContribute(Resource):
         else:
             parsed_data = {}
 
-        LOG.error(f'Description: {parsed_data}')
         response = jsonify(parsed_data)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
