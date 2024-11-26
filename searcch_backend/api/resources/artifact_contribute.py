@@ -200,9 +200,14 @@ class ArtifactContribute(Resource):
                                    required=False,
                                    help='missing retrievalInstructions in query string')
         self.reqparse.add_argument(name='datasetReadme',
-                            type=str,
-                            required=False,
-                            help='missing datasetReadme in query string')
+                                   type=str,
+                                   required=False,
+                                   help='missing datasetReadme in query string')
+        self.reqparse.add_argument(name='isEdit',
+                                   type=str,
+                                   required=False,
+                                   default=False,
+                                   help='indicates if the operation is an edit')
 
         super(ArtifactContribute, self).__init__()
 
@@ -217,6 +222,8 @@ class ArtifactContribute(Resource):
         args["collectionStartDateTime"] =datetime.strptime(args["collectionStartDateTime"], "%Y-%m-%d")
         args["collectionEndDateTime"] =datetime.strptime(args["collectionEndDateTime"], "%Y-%m-%d")
         args["providerName"] = args["providerName"]
+        is_edit = args.get('isEdit','false').strip().lower()=='true'
+        args.pop('isEdit',None)
 
         try:
             user_email = db.session.query(Person.email).filter(Person.id == login_session.user.person_id).first()
@@ -252,7 +259,7 @@ class ArtifactContribute(Resource):
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.status_code = 201
         
-        if(response.status_code == 200):
+        if(response.status_code == 200 and not is_edit):
             try:
                 contributed_artifact = ContributedArtifacts(user_id = login_session.user_id, title = args['datasetName'] )
                 db.session.add(contributed_artifact)
