@@ -1,15 +1,23 @@
 # providerlist.py
 
-from flask import jsonify
+from flask import jsonify, request,abort
 from flask_restful import Resource
 from searcch_backend.api.app import db
 from searcch_backend.models.model import DUA
 import logging
+from searcch_backend.api.common.auth import (verify_api_key, has_api_key, has_token, verify_token)
 
 LOG = logging.getLogger(__name__)
 
 class Provider(Resource):
     def get(self):
+        if has_api_key(request):
+            verify_api_key(request)
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not (login_session):
+            abort(400, description="insufficient permission to access Contribute Datasets page")
         try:
             providers = db.session.query(DUA.provider).distinct().all()
             provider_list = [provider[0] for provider in providers]
@@ -24,6 +32,13 @@ class Provider(Resource):
         
 class ProviderCollection(Resource):
     def get(self):
+        if has_api_key(request):
+            verify_api_key(request)
+        login_session = None
+        if has_token(request):
+            login_session = verify_token(request)
+        if not (login_session):
+            abort(400, description="insufficient permission to access Contribute Datasets page")
         try:
             provider_collection_list = db.session.query(DUA.provider,DUA.collection).distinct().all()
             result = []
