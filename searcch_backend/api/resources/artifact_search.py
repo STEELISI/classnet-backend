@@ -172,8 +172,11 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         
         if groupingId:
             if type(groupingId) is list:
+                groupingId = ['-' if gid == "Ungrouped" else gid for gid in groupingId]
                 query = query.filter(Artifact.groupingId.in_(groupingId))
             else:
+                if groupingId == "Ungrouped":
+                    groupingId = '-'
                 query = query.filter(Artifact.groupingId == groupingId)
         
 
@@ -225,6 +228,8 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url, owner_id , _ =  row
         else:
             artifact, _, num_ratings, avg_rating, num_reviews, view_count, dua_url, owner_id = row
+        
+        grouping_id_value = 'Ungrouped' if artifact.groupingId == "-" else artifact.groupingId
         result_artifacts.append({
             "id": artifact.id,
             "artifact_group_id": artifact.artifact_group_id,
@@ -244,7 +249,7 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
             "views": view_count if view_count else 0,
             "dua_url": dua_url,
             "category": artifact.category,
-            "groupingId": artifact.groupingId,
+            "groupingId": grouping_id_value,
             "shortdesc": artifact.shortdesc
         })
 
@@ -254,6 +259,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
         pages=int(math.ceil(total_results / items_per_page)),
         artifacts=result_artifacts
     )
+    if '-' in groupingIdDict:
+        groupingIdDict["Ungrouped"] = groupingIdDict.pop('-')
+
     return dict(category_dict = categoryDict, groupingId_dict = groupingIdDict, artifact_dict = artifact_dict)
 
 class ArtifactSearchIndexAPI(Resource):
@@ -354,7 +362,6 @@ class ArtifactSearchIndexAPI(Resource):
         #artifact ordering
         order = args['order']
         orderkey = args['orderkey']
-        LOG.error(f"orderby = {order}")
 
         # sanity checks
         if artifact_types:
