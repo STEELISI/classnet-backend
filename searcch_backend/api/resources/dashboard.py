@@ -10,7 +10,11 @@ from flask_restful import reqparse, Resource
 from sqlalchemy import func, desc, sql, or_, nullslast
 import logging
 import base64
-
+from antAPI.client.auth import AntAPIClientAuthenticator
+from antAPI.client.trac import (
+       antapi_trac_ticket_status,
+)
+from searcch_backend.api.ticket_creation.antapi_client_conf import AUTH
 LOG = logging.getLogger(__name__)
 
 class UserDashboardAPI(Resource):
@@ -29,7 +33,55 @@ class UserDashboardAPI(Resource):
     @staticmethod
     def generate_artifact_uri(artifact_group_id, artifact_id=None):
         return url_for('api.artifact', artifact_group_id, artifact_id=artifact_id)
-
+    def get_released_artifacts(self, query_results):
+        """
+        Filter query results to only include artifacts that have been released.
+        
+        Args:
+            query_results: Results from the SQLAlchemy query containing artifact and ticket information
+        
+        Returns:
+            List of artifacts that have been released
+        """
+        released_artifacts = []
+        LOG.error(f"query_results: {query_results}")
+        for result in query_results:
+            ticket_id = result.ticket_id
+            ticket_status = None
+            
+            if ticket_id == -1:
+                ticket_status = "released"
+            elif ticket_id == -2:
+                ticket_status = "new"
+            else:
+                auth = AntAPIClientAuthenticator(**AUTH)
+                try:
+                    ticket_status = antapi_trac_ticket_status(auth, ticket_id)
+                    LOG.error(f"Ticket status: {ticket_status} - {ticket_id}")
+                except Exception as err:
+                    LOG.error(f"Ticket status fetch for ticket ID {ticket_id} unsuccessful: {str(err)}")
+                    ticket_status = None
+                    
+                # Handle cancelled or non-existent tickets
+                if (ticket_status.lower() == "cancelled"):
+                    # Delete the request
+                    db.session.query(ArtifactRequests).filter(
+                        ArtifactRequests.artifact_group_id == result.artifact_group_id,
+                        ArtifactRequests.requester_user_id == result.requester_user_id
+                    ).delete()
+                    db.session.commit()
+                    ticket_status = "unrequested"
+            
+            # If the ticket is released, add it to our results
+            if ticket_status.lower() == "released":
+                released_artifacts.append({
+                    'artifact_id': result.id,
+                    'requester_user_id': result.requester_user_id,
+                    'requester_name': result.requester_name,
+                    'ticket_id': ticket_id
+                })
+        
+        return released_artifacts
     def get(self):
         verify_api_key(request)
         login_session = verify_token(request)
@@ -54,6 +106,22 @@ class UserDashboardAPI(Resource):
             .join(Artifact, Artifact.id == ArtifactPublication.artifact_id)\
             .filter(ArtifactRequests.requester_user_id == login_session.user_id)\
             .all()
+
+        query = db.session.query(
+            Artifact.id,
+            ArtifactRequests.requester_user_id,
+            ArtifactRequests.ticket_id,  
+            Person.name.label('requester_name'),
+            
+        ).join(ContributedArtifacts, func.trim(ContributedArtifacts.title) == func.trim(Artifact.title)
+        ).join(ArtifactRequests, Artifact.artifact_group_id == ArtifactRequests.artifact_group_id
+        ).join(User, ArtifactRequests.requester_user_id == User.id
+        ).join(Person, User.person_id == Person.id
+        ).filter(ContributedArtifacts.user_id == 40)
+
+        results = query.all()
+        released_artifacts = self.get_released_artifacts(results)
+        LOG.error(f"released_artifacts: {released_artifacts}")
         
         rated_artifacts = [] 
         for artifact in given_ratings:
