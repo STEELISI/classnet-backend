@@ -241,7 +241,7 @@ class DUAResource(Resource):
             soup.find(id='rep_email1').string = representative_researcher['email']
             soup.find(id='rep_ph1').string = representative_researcher['number']
         
-        elif dua_name == 'dua-test-20240925.md':
+        elif dua_name == 'dua-test-20240925.md' or dua_name == 'pivot-test-1.md' or dua_name == 'pivot-test-2.md':
             soup.find(id='rep_by').string = representative_researcher['name']
             soup.find(id='rep_email').string = representative_researcher['email']
             soup.find(id='rep_name').string = representative_researcher['name']
