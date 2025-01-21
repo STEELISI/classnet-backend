@@ -21,6 +21,15 @@ LOG = logging.getLogger(__name__)
 # Case B: the provider,collection name of the DUA
 # Note that Case B was introduced with the artifact cart feature where we retrieve the DUA for multiple group ids that share the same provider, collection
 
+
+def get_user_position(email):
+    try:
+        position = db.session.query(Person.position).filter(Person.email == email).first() 
+        return position[0] if position else ' '
+    except Exception as e:
+        LOG.error(f"Exception getting position : {e}")
+        return ' '
+
 class DUAResource(Resource):
 
     def __init__(self):
@@ -231,15 +240,24 @@ class DUAResource(Resource):
             soup.find(id='poc_email').string = representative_researcher['email']
 
         elif dua_name == 'dua-LaSIC-Netflow-00.md':
+            repetative_fields = [('rep_name',representative_researcher['name']),
+                               ('rep_email',representative_researcher['email']),
+                               ('rep_date',datetime.now().strftime("%m/%d/%Y")),
+                               ('rep_ph',representative_researcher['number'])]
+            for field, value in repetative_fields:
+                elements = soup.find_all(id = field)
+                for element in elements:
+                    element.string = value
+
             soup.find(id='rep_by').string = representative_researcher['name']
             soup.find(id='rep_org').string = representative_researcher['organization']
-            soup.find(id='rep_name').string = representative_researcher['name']
-            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
-            soup.find(id='rep_email').string = representative_researcher['email']
-            soup.find(id='rep_ph').string = representative_researcher['number']
-            soup.find(id='rep_name1').string = representative_researcher['name']
-            soup.find(id='rep_email1').string = representative_researcher['email']
-            soup.find(id='rep_ph1').string = representative_researcher['number']
+            soup.find(id = 'rep_proj').string = project
+            soup.find(id='rep_position').string = get_user_position(representative_researcher['email'])
+            soup.find(id='project_description').string = project_description
+            if len(researchers) > 1:
+                soup.find(id = 'collaborators_data').string = '“Collaborator Personnel” means:  faculty, employees, fellows, or students of an academic institution, which institution (i) has agreed to collaborate in the Project, (ii) has faculty, employees, fellows, or students who have a need to use or provide a service in respect of the Data in connection with its collaboration in the Project, and (iii) has been made aware of the terms of this Agreement and agreed to comply, and to cause its personnel to comply, with such terms. '
+            else:    
+                soup.find(id='collaborators_data').string = '“Collaborator Personnel” means: None. No collaborators are permitted on the Project.'
         
         elif dua_name == 'dua-test-20240925.md':
             soup.find(id='rep_by').string = representative_researcher['name']
