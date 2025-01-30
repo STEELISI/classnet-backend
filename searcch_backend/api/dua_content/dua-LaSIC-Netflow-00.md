@@ -32,7 +32,7 @@ Does the proposed agreement involve FIU receiving equipment? **No**
 
 ### 8. Security/Classified Information/Export Control
 Does the proposed agreement seek to involve or potentially involve classified or sensitive information? **No** <br>
-Will any part of this project involve work outside the U.S.?  fill <br>
+Will any part of this project involve work outside the U.S.?  **<span id='outside_work'></span> <br>**
 Will any non-U.S. Citizens or non-U.S. permanent residents be involved with this project? **Yes**  <br> Will any equipment, technology or written know-how be exported or taken to any foreign country(ies)? **No** <br>
 
 ### 9. For Confidentiality Agreements: 
@@ -85,13 +85,15 @@ Are there any potential financial or other conflict of interest for any FIU pers
         Provider Scientist Name: _________________<br> 
         Provider Scientist Email: _________________<br>
         Agreement Start date:<span id='rep_date'></span><br>
-        Agreement End date: Three  (3) years after start date<br>
+        Agreement End date: <span id='project_end_date'></span><br>
     </td>
     <td>
         <span style="font-weight: bold">Recipient</span><br>
         Recipient Scientist Name: <span id='rep_name'></span><br> 
         Recipient Scientist Email: <span id='rep_email'></span><br>
         Project Title: <span id='rep_proj'></span><br>
+        Project Start Date: <span id='project_start_date'></span><br>
+        Project End Date: <span id='project_end_date'></span><br>
         Attachement 2 Type: Other
     </td>
   </tr>
@@ -149,7 +151,7 @@ Project:
         Address:  <br>
         Email:    <br>
         Phone:    <br>
-        Agreement End date: Three  (3) years after start date<br>
+        Agreement End date: <spand id='project_end_date'></span><br> 
     </td>
     <td>
         <span style="font-weight: bold">By an Authorized Official of Recipient</span><br>
@@ -158,7 +160,7 @@ Project:
         Date : <span id='rep_date'></span><br>
         Contact Information for Formal Notices<br>
         Name:    <span id='rep_name'></span><br> 
-        Address:  <br>
+        Address:  <span id='rep_address'></span><br>
         Email:    <span id='rep_email'></span><br>
         Phone:   <span id='rep_ph'></span><br> 
     </td>
@@ -187,7 +189,7 @@ Project:
     <td>
         Contact Information for Formal Notices<br>
         Name:    <span id='rep_name'></span><br> 
-        Address:  <br>
+        Address:  <span id='rep_address'></span><br>
         Email:    <span id='rep_email'></span><br>
         Phone:   <span id='rep_ph'></span><br> 
     </td>
