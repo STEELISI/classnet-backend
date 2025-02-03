@@ -84,16 +84,14 @@ Are there any potential financial or other conflict of interest for any FIU pers
         <span style="font-weight: bold">Provider : LASIC</span><br>
         Provider Scientist Name: _________________<br> 
         Provider Scientist Email: _________________<br>
-        Agreement Start date:<span id='rep_date'></span><br>
-        Agreement End date: <span id='project_end_date'></span><br>
+        Agreement Start date:<span id='request_start_date'></span><br>
+        Agreement End date: <span id='request_end_date'></span><br>
     </td>
     <td>
         <span style="font-weight: bold">Recipient</span><br>
         Recipient Scientist Name: <span id='rep_name'></span><br> 
         Recipient Scientist Email: <span id='rep_email'></span><br>
         Project Title: <span id='rep_proj'></span><br>
-        Project Start Date: <span id='project_start_date'></span><br>
-        Project End Date: <span id='project_end_date'></span><br>
         Attachement 2 Type: Other
     </td>
   </tr>
@@ -151,7 +149,7 @@ Project:
         Address:  <br>
         Email:    <br>
         Phone:    <br>
-        Agreement End date: <spand id='project_end_date'></span><br> 
+        Agreement End date: <spand id='request_end_date'></span><br> 
     </td>
     <td>
         <span style="font-weight: bold">By an Authorized Official of Recipient</span><br>
