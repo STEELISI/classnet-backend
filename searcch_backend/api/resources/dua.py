@@ -69,7 +69,11 @@ class DUAResource(Resource):
         self.reqparse.add_argument(name='listOfArtifactIDs',
                                    type=str,
                                    required=False,
-                                   help='missing listOfArtifactIDs')   
+                                   help='missing listOfArtifactIDs')
+        self.reqparse.add_argument(name='lasicData',
+                                   type=str,
+                                   required=False,
+                                   help='missing Lasic Data')
                          
         super(DUAResource, self).__init__()
     
@@ -89,6 +93,11 @@ class DUAResource(Resource):
             frgpData = json.loads(args['frgpData'])
         else:
             frgpData = {}
+
+        if args['lasicData'] is not None:
+            lasicData = json.loads( args['lasicData'])
+        else:
+            lasicData = {}
 
         #Regardless of case A or B, we add all names, categories and sub-categories to a list and join it and add it to the DUA html.
         dataset_category = []
@@ -234,16 +243,20 @@ class DUAResource(Resource):
             soup.find(id='rep_email').string = representative_researcher['email']
             soup.find(id='rep_name').string = representative_researcher['name']
             soup.find(id='rep_title').string = representative_researcher['title']
-            soup.find(id='rep_date').string = datetime.now().strftime("%m/%d/%Y")
+            soup.find(id='rep_date').string = datetime.now().strftime("%Y-%m-%d")
 
             soup.find(id='poc_name').string = representative_researcher['name']
             soup.find(id='poc_email').string = representative_researcher['email']
 
         elif dua_name == 'dua-LaSIC-Netflow-00.md':
+            request_end_date =datetime.strptime(lasicData["requestEndDateTime"]['val'], "%Y-%m-%d")
+            request_start_date = datetime.strptime(lasicData["requestStartDateTime"]['val'], "%Y-%m-%d")
             repetative_fields = [('rep_name',representative_researcher['name']),
                                ('rep_email',representative_researcher['email']),
-                               ('rep_date',datetime.now().strftime("%m/%d/%Y")),
-                               ('rep_ph',representative_researcher['number'])]
+                               ('rep_date',datetime.now().strftime("%Y-%m-%d")),
+                               ('rep_ph',representative_researcher['number']),
+                               ('rep_address', lasicData['address']),
+                               ('request_end_date',request_end_date.strftime("%Y-%m-%d"))]
             for field, value in repetative_fields:
                 elements = soup.find_all(id = field)
                 for element in elements:
@@ -251,9 +264,11 @@ class DUAResource(Resource):
 
             soup.find(id='rep_by').string = representative_researcher['name']
             soup.find(id='rep_org').string = representative_researcher['organization']
-            soup.find(id = 'rep_proj').string = project
+            soup.find(id ='rep_proj').string = project
             soup.find(id='rep_position').string = get_user_position(representative_researcher['email'])
             soup.find(id='project_description').string = project_description
+            soup.find(id='request_start_date').string = request_start_date.strftime("%Y-%m-%d")
+            soup.find(id='outside_work').string = lasicData['outsideWork']
             if len(researchers) > 1:
                 soup.find(id = 'collaborators_data').string = '“Collaborator Personnel” means:  faculty, employees, fellows, or students of an academic institution, which institution (i) has agreed to collaborate in the Project, (ii) has faculty, employees, fellows, or students who have a need to use or provide a service in respect of the Data in connection with its collaboration in the Project, and (iii) has been made aware of the terms of this Agreement and agreed to comply, and to cause its personnel to comply, with such terms. '
             else:    
