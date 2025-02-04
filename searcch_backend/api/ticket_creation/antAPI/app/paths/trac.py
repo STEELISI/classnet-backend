@@ -5,6 +5,7 @@ import sys
 import re
 import subprocess
 import logging
+import pyfsdb
 
 from flask import (
     Blueprint,
@@ -59,14 +60,11 @@ def get_dataset_providers(datasets):
     Get all providers for `datasets` and return as a list of strings
     '''
     try:
-        res = subprocess.run(
-            f'dbcol datasetName providerName < {DATASETS_FSDB} | grep -v ^#',
-            shell=True, capture_output=True, check=True)
-    except subprocess.CalledProcessError as err:
+        fh = pyfsdb.Fsdb(DATASETS_FSDB, return_type=pyfsdb.RETURN_AS_DICTIONARY)
+        ds2provider = {row['datasetName']: row['providerName'] for row in fh}
+    except Exception as err:
         LOG.error("get_dataset_providers: cannot get dataset/provider list: %s", err)
         return []
-    ds2provider = dict(x.split('\t') for x in res.stdout.decode('utf-8').split('\n')
-                                         if '\t' in x)
     providers = set()
     for dataset in datasets.split():
         if not dataset:
