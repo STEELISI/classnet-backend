@@ -284,3 +284,30 @@ class DUAResource(Resource):
         response = jsonify({"dua": str(soup)})
         response.status_code = 200
         return response
+
+class DUAPreview(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(name='provider',
+                                   type=str,
+                                   required=True,
+                                   help='Provider Name') 
+        self.reqparse.add_argument(name='collection',
+                                   type=str,
+                                   required=True,
+                                   help='Collection Name')
+        super(DUAPreview, self).__init__()
+        
+    def get(self):
+        args = self.reqparse.parse_args()
+        provider = args['provider']
+        collection = args['collection']
+        dua_name = db.session.query(DUA.dua_url).filter(provider == DUA.provider, collection == DUA.collection).first()[0]
+        dua_file = open(f'searcch_backend/api/dua_content/{dua_name}', mode='r')
+        dua_content = dua_file.read()
+        dua_file.close()
+        soup = BeautifulSoup(dua_content, 'html.parser')
+        response = jsonify({"dua": str(soup)})
+        response.status_code = 200
+        return response
+    
