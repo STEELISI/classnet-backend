@@ -19,7 +19,7 @@ def generate_artifact_uri(artifact_group_id, artifact_id=None):
     return url_for('api.artifact', artifact_group_id=artifact_group_id,
                    artifact_id=artifact_id)
 
-def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId):
+def search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId, contributor_id):
     """ search for artifacts based on keywords, with optional filters by owner and affiliation """
     sqratings = db.session.query(
         ArtifactRatings.artifact_group_id,
@@ -181,7 +181,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
                     groupingId = '-'
                 query = query.filter(Artifact.groupingId == groupingId)
         
-
+    if contributor_id:
+        query = query.join(ContributedArtifacts, func.trim(ContributedArtifacts.title) == func.trim(Artifact.title))\
+            .filter(ContributedArtifacts.user_id.in_(contributor_id))
     if owner_keywords:
         if type(owner_keywords) is list:
             owner_keywords = ' or '.join(owner_keywords)
@@ -323,6 +325,12 @@ class ArtifactSearchIndexAPI(Resource):
                                    default='',
                                    action='append',
                                    help='missing groupingId to filter results')
+        self.reqparse.add_argument(name='contributor_id',
+                                   type=int,
+                                   required=False,
+                                   default='',
+                                   action='append',
+                                   help='missing contributor_id to filter results')
         self.reqparse.add_argument(name='order',
                                    type=str,
                                    required=False,
@@ -360,6 +368,7 @@ class ArtifactSearchIndexAPI(Resource):
         badge_id_list = args['badge_id']
         category = args['category']
         groupingId = args['groupingId']
+        contributor_id = args['contributor_id']
 
         #artifact ordering
         order = args['order']
@@ -387,7 +396,7 @@ class ArtifactSearchIndexAPI(Resource):
         # finally:
         #     db.session.close() 
 
-        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId)
+        result = search_artifacts(keywords, artifact_types, author_keywords, organization, owner_keywords, badge_id_list, page_num, items_per_page, category, orderkey, order, groupingId, contributor_id)
         response = jsonify(result)
         response.headers.add('Access-Control-Allow-Origin', '*')
         response.status_code = 200
@@ -433,7 +442,7 @@ class ArtifactRecommendationAPI(Resource):
                 }, "avg_rating": None, "num_ratings": 0, "authors": []})
         else:
             keywords = [result.tag for result in top_keywords]
-            artifacts = search_artifacts(keywords=" or ".join(keywords), artifact_types = ARTIFACT_TYPES, page_num = page_num, items_per_page= 10, author_keywords = None,  organization = None, owner_keywords = None, badge_id_list = None, groupingId = None)
+            artifacts = search_artifacts(keywords=" or ".join(keywords), artifact_types = ARTIFACT_TYPES, page_num = page_num, items_per_page= 10, author_keywords = None,  organization = None, owner_keywords = None, badge_id_list = None, groupingId = None, contributor_id = None)
             res =  db.session.query(ArtifactRatings.artifact_id, func.count(ArtifactRatings.id).label('num_ratings'), func.avg(ArtifactRatings.rating).label('avg_rating')).group_by("artifact_id").filter(ArtifactRatings.artifact_id == artifact_id).first()
             if res:
                 num_ratings = res.num_ratings if res.num_ratings else 0
