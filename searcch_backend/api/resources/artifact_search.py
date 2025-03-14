@@ -67,7 +67,9 @@ def search_artifacts(keywords, artifact_types, author_keywords, organization, ow
     )
 
     if keywords:
-        to_vectorize = func.concat(Artifact.title, case([(Artifact.shortdesc != None, Artifact.shortdesc)], else_=''), case([(tag_aggregation.c.tags != None, tag_aggregation.c.tags)], else_=''))         # Create the tsvector dynamically and filter with plainto_tsquery, including tags
+        # Create the tsvector dynamically and filter with plainto_tsquery, including tags
+        # Not that we add a " " after title because without it exact title matches wont get retieved for some reason!
+        to_vectorize = func.concat(Artifact.title + " ", case([(Artifact.shortdesc != None, Artifact.shortdesc)], else_=''), case([(tag_aggregation.c.tags != None, tag_aggregation.c.tags)], else_=''))                 
         tsvector = func.to_tsvector('english', to_vectorize)
         tsquery = func.to_tsquery('english', ' | '.join(keywords.split()))
         query = query.filter(tsvector.op('@@')(tsquery))
