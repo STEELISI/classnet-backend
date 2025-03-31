@@ -15,6 +15,7 @@ from antAPI.client.trac import (
        antapi_trac_ticket_status,
 )
 from searcch_backend.api.ticket_creation.antapi_client_conf import AUTH
+from collections import defaultdict
 LOG = logging.getLogger(__name__)
 
 class UserDashboardAPI(Resource):
@@ -78,6 +79,9 @@ class UserDashboardAPI(Resource):
                     'artifact_id': result.id,
                     'requester_user_id': result.requester_user_id,
                     'requester_name': result.requester_name,
+                    'requester_email': result.requester_email,
+                    'requester_position': result.requester_position,
+                    'requester_organizations': result.requester_organizations,
                     'ticket_id': ticket_id
                 })
         
@@ -91,9 +95,10 @@ class UserDashboardAPI(Resource):
         
         # artifacts owned by the logged-in user
         artifact_schema = ArtifactSchema(many=True, only=('artifact_group_id', 'id', 'type', 'title', 'ctime'))
-        owned_artifacts = db.session.query(Artifact)\
+        contributed_artifacts = db.session.query(Artifact)\
             .join(ContributedArtifacts, func.trim(ContributedArtifacts.title) == func.trim(Artifact.title))\
             .filter(ContributedArtifacts.user_id == login_session.user_id)
+        contributed_artifacts = artifact_schema.dump(contributed_artifacts)
         given_ratings = db.session.query(ArtifactRatings.artifact_group_id, ArtifactRatings.rating, Artifact.title, Artifact.type)\
             .join(ArtifactGroup, ArtifactGroup.id == ArtifactRatings.artifact_group_id)\
             .join(ArtifactPublication, ArtifactPublication.id == ArtifactGroup.publication_id)\
@@ -107,21 +112,52 @@ class UserDashboardAPI(Resource):
             .filter(ArtifactRequests.requester_user_id == login_session.user_id)\
             .all()
 
-        query = db.session.query(
+        contributed_with_requests_query = db.session.query(
             Artifact.id,
             ArtifactRequests.requester_user_id,
             ArtifactRequests.ticket_id,  
             Person.name.label('requester_name'),
-            
+            Person.email.label('requester_email'),
+            Person.position.label('requester_position'),
+            func.array_agg(Organization.name).label('requester_organizations'),
         ).join(ContributedArtifacts, func.trim(ContributedArtifacts.title) == func.trim(Artifact.title)
         ).join(ArtifactRequests, Artifact.artifact_group_id == ArtifactRequests.artifact_group_id
         ).join(User, ArtifactRequests.requester_user_id == User.id
         ).join(Person, User.person_id == Person.id
-        ).filter(ContributedArtifacts.user_id == 40)
+        ).join(UserAffiliation, User.id == UserAffiliation.user_id
+        ).join(Organization, UserAffiliation.org_id == Organization.id
+        ).filter(ContributedArtifacts.user_id == login_session.user_id
+        ).group_by(Artifact.id, ArtifactRequests.requester_user_id, ArtifactRequests.ticket_id, Person.name, Person.email, Person.position)
 
-        results = query.all()
-        released_artifacts = self.get_released_artifacts(results)
-        LOG.error(f"released_artifacts: {released_artifacts}")
+        contributed_with_requests_results = contributed_with_requests_query.all()
+        released_artifacts_all_data = self.get_released_artifacts(contributed_with_requests_results)
+        # Data for artifact contributors: Add list of users to whom the artifact was released for each artifact in contributed_artifacts
+        artifact_requesters = defaultdict(list)
+        for row in released_artifacts_all_data:
+            artifact_id = row['artifact_id'] 
+            artifact_requesters[artifact_id].append({
+                'requester_name': row['requester_name']  ,
+                'requester_email': row['requester_email'],
+                'requester_position': row['requester_position'],
+                'requester_organizations': row['requester_organizations'],
+            })
+        for artifact in contributed_artifacts:
+            artifact['users'] = [user['requester_name'] for user in artifact_requesters.get(artifact['id'], [])]
+
+        # Data for artifact contributors: Get information regarding the number of artifacts released, number of users released to and set of names of all users released to
+        users_released_to = {}
+        for datum in released_artifacts_all_data:
+            if datum['requester_name'] not in users_released_to:
+                users_released_to[datum['requester_name']] = {
+                    'requester_email': datum['requester_email'],
+                    'requester_position': datum['requester_position'],
+                    'requester_organizations': datum['requester_organizations'],
+                }
+        released_artifacts_overview = {
+            'total_number_released': len(released_artifacts_all_data),
+            'total_number_users_released_to': len(users_released_to),
+            'users_released_to': users_released_to
+        }
         
         rated_artifacts = [] 
         for artifact in given_ratings:
@@ -146,8 +182,9 @@ class UserDashboardAPI(Resource):
             requested_artifacts.append(result)
 
         response = jsonify({
-            "owned_artifacts": artifact_schema.dump(owned_artifacts),
+            "contributed_artifacts": contributed_artifacts,
             "requested_artifacts": requested_artifacts,
+            "released_artifacts_overview": released_artifacts_overview,
             "given_ratings": rated_artifacts
         })
         response.headers.add('Access-Control-Allow-Origin', '*')
