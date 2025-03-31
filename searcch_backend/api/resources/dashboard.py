@@ -182,6 +182,7 @@ class UserDashboardAPI(Resource):
             requested_artifacts.append(result)
 
         response = jsonify({
+            "contributor_id": login_session.user_id,
             "contributed_artifacts": contributed_artifacts,
             "requested_artifacts": requested_artifacts,
             "released_artifacts_overview": released_artifacts_overview,
