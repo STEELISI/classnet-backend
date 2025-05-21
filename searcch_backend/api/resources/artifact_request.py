@@ -4,6 +4,7 @@ import logging
 import json
 import os
 import time
+import hashlib
 from flask import abort, jsonify, request
 from flask_restful import reqparse, Resource
 from sqlalchemy import func, desc, and_
@@ -211,10 +212,12 @@ class ArtifactRequestAPI(Resource):
 
             # The filename below is unique since this else block can only be accessed once
             # for a given (artifact_group_id,user_id) pair
-            filename = (agreement_file_folder
-                        + f'/signed_dua_artifact_group_id_{artifact_group_id}'
+            filestring =  f'signed_dua_artifact_group_id_{artifact_group_id}'
+            encoded_string = filestring.encode('utf-8')
+            md5_hash = hashlib.md5(encoded_string).hexdigest()
+            filename = (agreement_file_folder + '/' + md5_hash
                         + f'_requester_user_id_{user_id}.html'
-            )
+                        )
             with open(filename, 'wb+') as fout:
                 fout.write(agreement_file)
 
@@ -395,10 +398,18 @@ class ArtifactRequestCartAPI(Resource):
 
         # The filename below is unique since this else block can only be accessed once
         # for a given (artifact_group_id,user_id) pair
-        filename = (agreement_file_folder
-                    + f'/signed_dua_artifact_group_id_{str(listOfArtifactIDs)}'
+        
+        #filename = (agreement_file_folder
+        #            + f'/signed_dua_artifact_group_id_{str(listOfArtifactIDs)}'
+        #            + f'_requester_user_id_{user_id}.html'
+        #)
+        filestring =  f'signed_dua_artifact_group_id_{str(listOfArtifactIDs)}'
+        encoded_string = filestring.encode('utf-8')
+        md5_hash = hashlib.md5(encoded_string).hexdigest()
+        filename = (agreement_file_folder + '/' + md5_hash
                     + f'_requester_user_id_{user_id}.html'
-        )
+                    )
+
         with open(filename, 'wb+') as fout:
             fout.write(agreement_file)
 
