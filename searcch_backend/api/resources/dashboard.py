@@ -64,7 +64,7 @@ class UserDashboardAPI(Resource):
                     ticket_status = None
                     
                 # Handle cancelled or non-existent tickets
-                if (ticket_status.lower() == "cancelled"):
+                if (ticket_status is None or ticket_status.lower() == "cancelled"):
                     # Delete the request
                     db.session.query(ArtifactRequests).filter(
                         ArtifactRequests.artifact_group_id == result.artifact_group_id,
