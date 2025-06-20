@@ -527,12 +527,14 @@ class ArtifactRequestCartAPI(Resource):
                 antapi_trac_ticket_attach(auth, ticket_id, [filename])
 
             except Exception as err: # pylint: disable=broad-except
-                # undo the previous add
+                # undo artifact_request additions to DB since we could not create a ticket for it
                 LOG.error(f"Failed to create ticket: {err}")
-                try:
-                    db.session.delete(request_entry)
-                except Exception as err: # pylint: disable=broad-except
-                    LOG.error(f"Can't undo entry for a failed ticket add id={request_entry.id}: {err}")
+                for artifact_request_id in artifact_request_ids:
+                    try:
+                        db.session.query(ArtifactRequests).filter(artifact_request_id == ArtifactRequests.id).delete()
+                        db.session.commit()
+                    except Exception as err: 
+                        LOG.error(f"Can't undo entry for a failed ticket add id={artifact_request_id}: {err}")
                 return error_response
         for artifact_request_id in artifact_request_ids:
             try:
