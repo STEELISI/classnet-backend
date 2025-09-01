@@ -602,7 +602,7 @@ class Sessions(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete='CASCADE'), nullable=False)
-    sso_token = db.Column(db.String(64), nullable=False)
+    sso_token = db.Column(db.String(1024), nullable=False)
     expires_on = db.Column(db.DateTime, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     user = db.relationship("User", uselist=False)
