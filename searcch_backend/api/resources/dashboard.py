@@ -113,7 +113,7 @@ class UserDashboardAPI(Resource):
             .all()
 
         contributed_with_requests_query = db.session.query(
-            Artifact.id,
+            Artifact.id, Artifact.artifact_group_id,
             ArtifactRequests.requester_user_id,
             ArtifactRequests.ticket_id,  
             Person.name.label('requester_name'),
