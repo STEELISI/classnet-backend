@@ -24,9 +24,11 @@ logger = logging.getLogger('alembic.env')
 from flask import current_app
 config.set_main_option(
     'sqlalchemy.url',
-    str(current_app.extensions['migrate'].db.engine.url).replace('%', '%%'))
+    str(current_app.extensions['migrate'].db.engine.url).replace('%', '%%').replace('***', 'postgres'))
+
 target_metadata = current_app.extensions['migrate'].db.metadata
 
+print("Set config", config.get_main_option('sqlalchemy.url'))
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
