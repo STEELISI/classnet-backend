@@ -39,7 +39,7 @@ sqlparse==0.3.0
 urllib3==1.26.5
 Werkzeug==1.0.1
 psycogreen==1.0.2
-APScheduler==3.9.1
+APScheduler
 beautifulsoup4==4.11.1
 # >0.30.2 has a bug ...
 ##eventlet==0.30.2
